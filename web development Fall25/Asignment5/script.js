@@ -20,7 +20,6 @@ playerpick.forEach(item => {
 
 function computerpick() {
     let counter = 0;
-
     const interval = setInterval(() => {
         computerImg.style.border = 'none';
 
