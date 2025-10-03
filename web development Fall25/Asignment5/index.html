@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>Rock Paper Scissors</h1>
+
+    <div id="container-player">
+        <div class="flex-item" id="item-1" data-choice="rock">
+            <img src="images/rock.PNG">
+        </div>
+
+        <div class="flex-item" id="item-2" data-choice="paper">
+            <img src="images/paper.PNG">
+        </div>
+
+        <div class="flex-item" id="item-3" data-choice="scissors">
+            <img src="images/scissors.PNG">
+        </div>
+    </div>
+
+    <div id="computer-play">
+        <img src="images/question-mark.PNG">
+    </div>
+
+    <footer>
+        <h3>Result: <span id="result"></span></h3>
+    </footer>
+
+    <div id="scores">Scores: Wins: 0 | Losses: 0 | Ties: 0</div>
+    <button id="resetScore">Reset Scores</button>
+

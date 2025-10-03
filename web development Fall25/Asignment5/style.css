@@ -1,0 +1,52 @@
+h1{
+    text-align: center;
+}
+#container-player{
+
+    border: 2px solid black;
+    padding: 20px;
+    display: flex;
+    height: 210px;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    margin:0px;
+}
+
+.flex-item{
+    margin: 20px;
+    flex-direction: row;
+    display:block;
+}
+
+img{
+
+    border: 2px solid gray;
+    height: 160px;
+    width: 140px;
+}
+
+
+
+#computer-play{
+    margin-top: 20px;
+    margin-left: 45%;
+    width: 150px;
+}
+
+h3{
+    padding-top: 30px;
+    padding-left: 10px;
+    font-size: 30px;
+    border: 2px solid black;
+    height: 80px
+}
+#resetScore{
+    margin-left: 20px;
+    margin-top: 20px;
+    height: 100px;
+    font-size: 20px;
+}
+
+#scores{
+    font-size: 30px;
+}
