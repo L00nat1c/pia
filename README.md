@@ -16,3 +16,13 @@ follow the steps below.
    `npx expo start`
 6. Terminal will run the project (make sure it stays running in terminal) and display QR code
 7. Scan QR code with phone camera and it will display app on phone (no XCode needed!)
+
+
+## Spring Boot Back-End Steps
+
+Back-End is using a Spring Boot application to run CRUD operations.
+
+1. Clone the repository onto your computer
+2. Go to the directory that contains the "pom.xml" file and open a powershell terminal.
+3. Run “./mvnw clean install” to install necessary files
+4. Run “./mvnw clean spring-boot:run” to launch the application
