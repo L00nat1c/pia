@@ -1,6 +1,8 @@
 import { ScrollView } from "react-native";
 import ReviewCard from "../components/ReviewCard";
 
+// This file uses the ReviewCard component to dynamically render list of reviews. Currently hardcoded, but will connect to DB.
+
 export default function Index() {
   const reviews = [
     {
