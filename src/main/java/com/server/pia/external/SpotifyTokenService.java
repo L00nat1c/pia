@@ -18,9 +18,14 @@ public class SpotifyTokenService {
     private String clientSecret;
 
     private String accessToken;
+    private long tokenExpirationTime = 0;
 
     public String getAccessToken() {
-        if (accessToken != null) return accessToken;
+
+        // If token exists and not expired, reuse it
+        if (accessToken != null && System.currentTimeMillis() < tokenExpirationTime) {
+            return accessToken;
+        }
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -40,7 +45,13 @@ public class SpotifyTokenService {
                 Map.class
         );
 
-        accessToken = (String) response.getBody().get("access_token");
+        Map body = response.getBody();
+
+        accessToken = (String) body.get("access_token");
+        Integer expiresIn = (Integer) body.get("expires_in");
+
+        // Convert seconds to milliseconds
+        tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000);
 
         return accessToken;
     }
