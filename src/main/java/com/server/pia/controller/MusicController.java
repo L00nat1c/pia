@@ -1,7 +1,7 @@
 package com.server.pia.controller;
 
-import com.server.pia.dto.TrackResponse;
-import com.server.pia.service.MusicService;
+import com.server.pia.entity.Music;
+import com.server.pia.repository.MusicRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,14 +10,19 @@ import java.util.List;
 @RequestMapping("/api/music")
 public class MusicController {
 
-    private final MusicService musicService;
+    private final MusicRepository musicRepository;
 
-    public MusicController(MusicService musicService) {
-        this.musicService = musicService;
+    public MusicController(MusicRepository musicRepository) {
+        this.musicRepository = musicRepository;
     }
 
-    @GetMapping("/trending")
-    public List<TrackResponse> getTrending() throws Exception {
-        return musicService.getTrendingTracks();
+    @GetMapping
+    public List<Music> getMusic() {
+        return musicRepository.findAll();
+    }
+
+    @PostMapping
+    public Music addMusic(@RequestBody Music music) {
+        return musicRepository.save(music);
     }
 }
