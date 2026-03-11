@@ -1,6 +1,8 @@
 package com.server.pia.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "music")
@@ -32,13 +34,14 @@ public class Music {
     @JoinColumn(name = "artist_id")
     private Artist artist;
 
+    @OneToMany(mappedBy = "music")
+    @JsonIgnore
+    private List<Reviews> reviews;
+
     public Music() {}
 
     public Long getMusic_id() { return music_id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-
-    public Integer getSpotify_id() { return spotify_id; }
-    public void setSpotify_id(Integer spotify_id) { this.spotify_id = spotify_id; }
 }

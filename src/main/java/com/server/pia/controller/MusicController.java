@@ -1,28 +1,25 @@
 package com.server.pia.controller;
 
-import com.server.pia.entity.Music;
-import com.server.pia.repository.MusicRepository;
+import com.server.pia.service.MusicService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/music")
 public class MusicController {
 
-    private final MusicRepository musicRepository;
+    private final MusicService musicService;
 
-    public MusicController(MusicRepository musicRepository) {
-        this.musicRepository = musicRepository;
+    public MusicController(MusicService musicService) {
+        this.musicService = musicService;
     }
 
-    @GetMapping
-    public List<Music> getMusic() {
-        return musicRepository.findAll();
+    @GetMapping("/trending")
+    public String getTrendingMusic() {
+        return musicService.getTrendingTracks();
     }
 
-    @PostMapping
-    public Music addMusic(@RequestBody Music music) {
-        return musicRepository.save(music);
+    @GetMapping("/{trackId}")
+    public String getTrackById(@PathVariable String trackId) {
+        return musicService.getTrackById(trackId);
     }
 }

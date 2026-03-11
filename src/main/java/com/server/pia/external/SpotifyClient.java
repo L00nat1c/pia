@@ -13,7 +13,7 @@ public class SpotifyClient {
         this.tokenService = tokenService;
     }
 
-    public String getNewReleases() {
+        public String getTrendingTracks() {
 
         String token = tokenService.getAccessToken();
 
@@ -25,7 +25,28 @@ public class SpotifyClient {
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "https://api.spotify.com/v1/browse/new-releases?limit=10",
+                "https://api.spotify.com/v1/search?q=top&type=track&limit=10",
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        return response.getBody();
+    }
+
+    public String getTrackById(String trackId) {
+
+        String token = tokenService.getAccessToken();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://api.spotify.com/v1/tracks/" + trackId,
                 HttpMethod.GET,
                 entity,
                 String.class
