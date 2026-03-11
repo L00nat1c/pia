@@ -80,22 +80,22 @@ export default function ReviewCard({
       <View style={styles.interactionContainer}>
         {/* Pressable is like buttons */}
         <Pressable onPress={onLike} style={styles.interactionItem}>
-          <Ionicons name="heart" size={20} color="#fff" />
+          <Ionicons name="heart-outline" size={20} color="#9b9486" />
           <Text style={styles.interactionText}>{likes}</Text>
         </Pressable>
 
         <Pressable onPress={onComment} style={styles.interactionItem}>
-          <Ionicons name="chatbubble" size={20} color="#fff" />
+          <Ionicons name="chatbubble-outline" size={20} color="#9b9486" />
           <Text style={styles.interactionText}>{comments}</Text>
         </Pressable>
 
         <Pressable onPress={onRepeat} style={styles.interactionItem}>
-          <Ionicons name="repeat" size={20} color="#fff" />
+          <Ionicons name="repeat" size={20} color="#9b9486" />
           <Text style={styles.interactionText}>{repeats}</Text>
         </Pressable>
 
         <Pressable onPress={onShare} style={styles.interactionItem}>
-          <Ionicons name="share" size={20} color="#fff" />
+          <Ionicons name="share-outline" size={20} color="#9b9486" />
         </Pressable>
       </View>
     </View>
@@ -106,12 +106,13 @@ export default function ReviewCard({
 const styles = StyleSheet.create({
   card: {
     width: "90%",
-    backgroundColor: "#232323",
+    backgroundColor: "#131516",
     borderRadius: 12,
-    borderColor: "#fff",
-    borderWidth: 0.5,
+    borderColor: "#6d675a",
+    borderWidth: 1,
     marginVertical: 10,
-    paddingBottom: 10,
+    padding: 8,
+    paddingBottom: 12,
   },
   cardHeader: {
     height: 50,
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   cardProfileText: {
-    color: "#fff",
+    color: "#e5e3e1",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -139,11 +140,11 @@ const styles = StyleSheet.create({
   },
   cardSongPressable: {
     height: 100,
-    backgroundColor: "#111",
+    backgroundColor: "#080808",
     marginHorizontal: 10,
     borderRadius: 12,
     padding: 10,
-    borderColor: "#fff",
+    borderColor: "#716a5d",
     borderWidth: 0.25,
     marginTop: 5,
   },
@@ -157,12 +158,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   songTitle: {
-    color: "#fff",
+    color: "#e7e5e2",
     fontSize: 14,
     fontWeight: "bold",
   },
   songArtist: {
-    color: "#ccc",
+    color: "#88827a",
     fontSize: 12,
     marginTop: 2,
   },
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   cardReviewText: {
-    color: "#fff",
+    color: "#cbc6bf",
     fontSize: 12,
   },
   interactionContainer: {
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   interactionText: {
-    color: "#fff",
+    color: "#9b9486",
     marginLeft: 5,
     fontSize: 12,
   },

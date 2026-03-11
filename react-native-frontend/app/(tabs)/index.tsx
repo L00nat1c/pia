@@ -46,8 +46,8 @@ export default function Index() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#232323", width: "100%" }}
-      contentContainerStyle={{ alignItems: "center", paddingVertical: 20 }}
+      style={{ flex: 1, backgroundColor: "#080808", width: "100%" }}
+      contentContainerStyle={{ alignItems: "center", paddingVertical: 10 }}
     >
       {reviews.map((review, index) => (
         <ReviewCard
