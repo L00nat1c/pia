@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "playlist")
+@Table(name = "playlists")
 public class Playlist {
 
     @Id

@@ -26,7 +26,7 @@ public class Music {
 
     private Integer review_count;
 
-    private Integer spotify_id;
+    private String spotify_id;
 
     private String created_at;
 

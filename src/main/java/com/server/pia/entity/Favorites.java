@@ -9,9 +9,11 @@ public class Favorites {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long favorite_id;
+    @Column(name = "favorite_id")
+    private Long favoriteId;
 
-    private LocalDate added_at;
+    @Column(name = "added_at")
+    private LocalDate addedAt;
 
     @ManyToOne
     @JoinColumn(name = "music_id")
@@ -22,4 +24,8 @@ public class Favorites {
     private User user;
 
     public Favorites() {}
+
+    public Long getFavoriteId() { return favoriteId; }
+    public User getUser() { return user; }
+    public Music getMusic() { return music; }
 }
