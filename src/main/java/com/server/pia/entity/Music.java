@@ -10,7 +10,8 @@ public class Music {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long music_id;
+    @Column(name = "music_id")
+    private Long musicId;
 
     private String name;
 
@@ -40,7 +41,7 @@ public class Music {
 
     public Music() {}
 
-    public Long getMusic_id() { return music_id; }
+    public Long getMusicId() { return musicId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

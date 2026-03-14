@@ -1,6 +1,7 @@
 package com.server.pia.controller;
 
 import com.server.pia.entity.Favorites;
+import com.server.pia.dto.FavoriteRequest;
 import com.server.pia.service.FavoritesService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +18,12 @@ public class FavoritesController {
     }
 
     @PostMapping
-    public Favorites addFavorite(@RequestBody Favorites favorite) {
-        return favoritesService.addFavorite(favorite);
+    public Favorites addFavorite(@RequestBody FavoriteRequest request) {
+
+        return favoritesService.addFavorite(
+                request.getUserId(),
+                request.getMusicId()
+        );
     }
 
     @GetMapping("/{userId}")

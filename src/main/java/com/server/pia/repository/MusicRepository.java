@@ -11,7 +11,7 @@ public interface MusicRepository extends JpaRepository<Music, Long> {
     @Query("""
         SELECT m
         FROM Music m
-        JOIN Favorites f ON f.music.music_id = m.music_id
+        JOIN Favorites f ON f.music.musicId = m.musicId
         GROUP BY m
         ORDER BY COUNT(f) DESC
     """)

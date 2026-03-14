@@ -23,9 +23,25 @@ public class Favorites {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Favorites() {}
-
     public Long getFavoriteId() { return favoriteId; }
+    public void setFavoriteId(Long favoriteId) {
+        this.favoriteId = favoriteId;
+    }
+
     public User getUser() { return user; }
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Music getMusic() { return music; }
+    public void setMusic(Music music) {
+        this.music = music;
+    }
+
+    public LocalDate getAddedAt() { return addedAt; }
+    public void setAddedAt(LocalDate addedAt) {
+        this.addedAt = addedAt;
+    }
+
+    public Favorites() {}
 }
