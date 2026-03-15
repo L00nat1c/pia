@@ -3,6 +3,8 @@ package com.server.pia.controller;
 import com.server.pia.entity.Favorites;
 import com.server.pia.dto.FavoriteRequest;
 import com.server.pia.service.FavoritesService;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,10 +22,12 @@ public class FavoritesController {
     @PostMapping
     public Favorites addFavorite(@RequestBody FavoriteRequest request) {
 
-        return favoritesService.addFavorite(
-                request.getUserId(),
-                request.getMusicId()
-        );
+        Long userId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return favoritesService.addFavorite(userId, request.getMusicId());
     }
 
     @GetMapping("/{userId}")
