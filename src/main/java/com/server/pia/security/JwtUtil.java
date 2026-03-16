@@ -6,19 +6,28 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private long expiration;
+
+    private Key getKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(Long userId) {
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getKey())
                 .compact();
     }
 
@@ -26,7 +35,7 @@ public class JwtUtil {
 
         return Long.parseLong(
                 Jwts.parserBuilder()
-                        .setSigningKey(key)
+                        .setSigningKey(getKey())
                         .build()
                         .parseClaimsJws(token)
                         .getBody()

@@ -21,11 +21,19 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
-    private LocalDate created_at;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDate createdAt;
 
-    private LocalDate birth_date;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDate.now();
+    }
+
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
@@ -47,4 +55,7 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 }

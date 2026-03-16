@@ -3,6 +3,8 @@ package com.server.pia.controller;
 import com.server.pia.dto.LoginRequest;
 import com.server.pia.service.AuthService;
 import org.springframework.web.bind.annotation.*;
+import com.server.pia.dto.RegisterRequest;
+import com.server.pia.entity.User;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,5 +23,10 @@ public class AuthController {
                 request.getEmail(),
                 request.getPassword()
         );
+    }
+
+    @PostMapping("/register")
+    public User register(@RequestBody RegisterRequest request) {
+        return authService.register(request);
     }
 }
