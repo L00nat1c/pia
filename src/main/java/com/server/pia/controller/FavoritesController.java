@@ -30,8 +30,13 @@ public class FavoritesController {
         return favoritesService.addFavorite(userId, request.getMusicId());
     }
 
-    @GetMapping("/{userId}")
-    public List<Favorites> getUserFavorites(@PathVariable Long userId) {
+    @GetMapping("/me")
+    public List<Favorites> getUserFavorites() {
+        Long userId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+                
         return favoritesService.getFavoritesByUser(userId);
     }
 }
