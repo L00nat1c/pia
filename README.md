@@ -1,3 +1,4 @@
+
 # Play It Again
 
 ## Front-End Steps
@@ -26,3 +27,74 @@ Back-End is using a Spring Boot application to run CRUD operations.
 2. Go to the directory that contains the "pom.xml" file and open a powershell terminal.
 3. Run “./mvnw clean install” to install necessary files
 4. Run “./mvnw clean spring-boot:run” to launch the application
+
+# Current endpoints (WIP)
+http://localhost:8080
+
+## GETs
+
+### /api/users/me
+Gets user data based on the login token
+
+**Header**
+```
+Authorization: Bearer user_token
+```
+The user_token is from the POST login
+
+### /api/favorites/me
+Gets the favorite music tracks based on the logged in user
+
+**Header**
+```
+Authorization: Bearer user_token
+```
+
+### /api/music/trending
+Gets trending music from Spotify Web API
+
+## POSTs
+
+### /api/auth/register
+Registers a new user + encrypts password
+
+**Body**
+**JSON**
+```
+{
+  "username": "username",
+  "email": "testemail@test.com",
+  "password": "user_password",
+  "birthDate": "YYYY-MM-DD"
+}
+```
+
+### /api/auth/login
+User login, returns a token
+
+**Body**
+**JSON**
+```
+{
+  "email": "testemail@test.com",
+  "password": "user_password"
+}
+```
+
+### /api/favorites
+Adds music track to the logged in user’s favorites
+
+**Header**
+```
+Authorization: Bearer user_token
+Content-Type: application/json
+```
+user_token is from POST login
+
+**Body**
+**JSON**
+```
+{
+  "musicId": 3
+}
+```
