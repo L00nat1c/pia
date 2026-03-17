@@ -1,9 +1,26 @@
 import { ScrollView } from "react-native";
 import ReviewCard from "../components/ReviewCard";
+import { useEffect } from "react";
+import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 
 // This file uses the ReviewCard component to dynamically render list of reviews. Currently hardcoded, but will connect to DB.
 
 export default function Index() {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (token) {
+        router.replace("/(tabs)");
+      } else {
+        router.replace("/(auth)/login");
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   const reviews = [
     {
       profileImage: require("../../assets/images/profile-icon-9.png"),
