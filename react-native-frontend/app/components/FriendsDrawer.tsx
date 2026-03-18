@@ -38,6 +38,7 @@ export default function FriendsDrawer({
   onPressFriend,
 }: FriendsDrawerProps) {
   const translateX = useRef(new Animated.Value(DRAWER_WIDTH)).current;
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
 
   // Pan responder for swipe gesture
   const panResponder = useRef(
@@ -70,30 +71,76 @@ export default function FriendsDrawer({
   }, [visible]);
 
   const openDrawer = () => {
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-      tension: 65,
-      friction: 10,
-    }).start();
+    Animated.parallel([
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 65,
+        friction: 10,
+      }),
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const closeDrawer = () => {
-    Animated.timing(translateX, {
-      toValue: DRAWER_WIDTH,
-      duration: 250,
-      useNativeDriver: true,
-    }).start(() => {
+    Animated.parallel([
+      Animated.timing(translateX, {
+        toValue: DRAWER_WIDTH,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
       onClose();
     });
   };
 
-  if (!visible) return null;
+  // Vinyl disk animation - moves faster than drawer to hide fully when closed
+  const vinylTranslateX = translateX.interpolate({
+    inputRange: [0, DRAWER_WIDTH],
+    outputRange: [0, DRAWER_WIDTH * 1.98], // Moves 2.5x faster to fully hide behind drawer
+  });
 
   return (
     <View style={styles.container}>
       {/* Overlay - tapping closes drawer */}
-      <Pressable style={styles.overlay} onPress={closeDrawer} />
+      <Animated.View 
+        style={[
+          styles.overlay, 
+          { opacity: overlayOpacity }
+        ]}
+      >
+        <Pressable style={styles.overlayPressable} onPress={closeDrawer} />
+      </Animated.View>
+
+      {/* Vinyl Disk - behind drawer, only edge peeks out - tapping closes drawer */}
+      <Pressable onPress={closeDrawer} style={styles.vinylPressable}>
+        <Animated.View
+          style={[
+            styles.vinylDisk,
+            {
+              transform: [{ translateX: vinylTranslateX }],
+            },
+          ]}
+        >
+          {/* Outer black vinyl */}
+          <View style={styles.vinylOuter}>
+            {/* Dark green label in center */}
+            <View style={styles.vinylLabel}>
+              {/* Center hole */}
+              <View style={styles.vinylHole} />
+            </View>
+          </View>
+        </Animated.View>
+      </Pressable>
 
       {/* Drawer */}
       <Animated.View
@@ -160,8 +207,23 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  overlayPressable: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  vinylPressable: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: DRAWER_WIDTH, // Make pressable area cover the visible vinyl area
+    zIndex: 999, // Behind drawer (1000) but above overlay
   },
   drawer: {
     position: "absolute",
@@ -180,6 +242,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
+    zIndex: 1000, // Above vinyl disk (999)
   },
   header: {
     flexDirection: "row",
@@ -243,5 +306,50 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     marginTop: 40,
+  },
+  vinylDisk: {
+    position: "absolute",
+    right: 0,
+    top: "50%",
+    marginTop: -300, // Half of 600px to center vertically
+    width: 600,
+    height: 600,
+  },
+  vinylOuter: {
+    width: 600,
+    height: 600,
+    borderRadius: 300,
+    backgroundColor: "#1a1a1a", // Black vinyl
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#0a0a0a",
+    // Subtle vinyl grooves effect
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  vinylLabel: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "#1a4d2e", // Dark green label
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#0f2419",
+  },
+  vinylHole: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "#080808",
+    borderWidth: 1,
+    borderColor: "#000",
   },
 });
