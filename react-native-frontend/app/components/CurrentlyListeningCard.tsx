@@ -30,7 +30,7 @@ export default function CurrentlyListeningCard({
           <Text style={styles.username}>{username}</Text>
           {isListeningNow ? (
             <View style={styles.listeningIndicator}>
-              <Ionicons name="musical-notes" size={12} color="#1DB954" />
+              <Ionicons name="musical-notes" size={12} color="#c2410c" />
               <Text style={styles.listeningText}>Listening now</Text>
             </View>
           ) : (
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   listeningText: {
-    color: "#1DB954",
+    color: "#c2410c",
     fontSize: 11,
     marginLeft: 4,
     fontWeight: "500",

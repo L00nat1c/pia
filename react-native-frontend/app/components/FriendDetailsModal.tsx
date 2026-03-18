@@ -61,7 +61,7 @@ export default function FriendDetailsModal({
               <Text style={styles.username}>{username}</Text>
               {isListeningNow ? (
                 <View style={styles.listeningIndicator}>
-                  <Ionicons name="musical-notes" size={14} color="#1DB954" />
+                  <Ionicons name="musical-notes" size={14} color="#c2410c" />
                   <Text style={styles.listeningText}>Listening now</Text>
                 </View>
               ) : (
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   listeningText: {
-    color: "#1DB954",
+    color: "#c2410c",
     fontSize: 12,
     marginLeft: 4,
     fontWeight: "500",

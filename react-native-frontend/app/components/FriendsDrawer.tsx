@@ -110,7 +110,7 @@ export default function FriendsDrawer({
   });
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents={visible ? "auto" : "none"}>
       {/* Overlay - tapping closes drawer */}
       <Animated.View 
         style={[
@@ -175,7 +175,7 @@ export default function FriendsDrawer({
                   {friend.isListeningNow ? (
                     <>
                       <View style={styles.listeningIndicator}>
-                        <Ionicons name="musical-notes" size={10} color="#1DB954" />
+                        <Ionicons name="musical-notes" size={10} color="#c2410c" />
                         <Text style={styles.songTitle} numberOfLines={1}>
                           {friend.songTitle}
                         </Text>
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   songTitle: {
-    color: "#1DB954",
+    color: "#c2410c",
     fontSize: 12,
     marginLeft: 4,
     flex: 1,
@@ -338,11 +338,11 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: "#1a4d2e", // Dark green label
+    backgroundColor: "#c2410c", // Dark orange label
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#0f2419",
+    borderColor: "#7c2d12",
   },
   vinylHole: {
     width: 16,

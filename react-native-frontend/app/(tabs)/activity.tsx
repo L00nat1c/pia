@@ -53,21 +53,28 @@ export default function Activity() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const startX = useRef(0);
 
   // Pan responder for swipe from right edge
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: (evt) => {
-        // Only respond if touch starts from right edge
+        // Only respond if touch starts from right edge (last 20px)
         const touchX = evt.nativeEvent.pageX;
-        return touchX > SCREEN_WIDTH - 30;
+        startX.current = touchX;
+        return touchX > SCREEN_WIDTH - 20;
       },
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dx < -10;
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        // Double-check the starting position was from right edge
+        if (startX.current <= SCREEN_WIDTH - 20) {
+          return false;
+        }
+        // Only activate on horizontal left swipe, ignore vertical scrolling
+        return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && gestureState.dx < -15;
       },
       onPanResponderMove: (_, gestureState) => {
         // Swiping left from right edge
-        if (gestureState.dx < -30) {
+        if (gestureState.dx < -40) {
           setIsDrawerOpen(true);
         }
       },
@@ -216,7 +223,7 @@ export default function Activity() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#379eff"
+            tintColor="#c2410c"
           />
         }
       >
