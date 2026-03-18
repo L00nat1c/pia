@@ -9,8 +9,7 @@ import {
 import { useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-
-const API_URL = "http://192.168.68.126:8080";
+import { API_URL } from "../config";
 
 export default function Login() {
   const [email, setEmail] = useState("");
