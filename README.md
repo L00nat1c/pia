@@ -116,7 +116,9 @@ Content-Type: application/json
 
 **Body** **JSON**
 ```
-"musicId": 1,
-"rating": 5,
-"reviewText": "Test review text"
+{
+   "musicId": 1,
+   "rating": 5,
+   "reviewText": "Test review text"
+}
 ```
