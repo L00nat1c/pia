@@ -2,8 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-
-const API_URL = "http://192.168.68.126:8080";
+import { API_URL, AUTHENTICATION_ENABLED } from "../config";
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
@@ -11,6 +10,16 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        if (!AUTHENTICATION_ENABLED) {
+          // Use mock data in development mode
+          setUserData({
+            username: "DevUser",
+            email: "dev@example.com",
+            birthDate: "1990-01-01",
+          });
+          return;
+        }
+
         const token = await SecureStore.getItemAsync("token");
 
         if (!token) {
@@ -40,6 +49,11 @@ export default function Profile() {
   }, []);
 
   const handleLogout = async () => {
+    if (!AUTHENTICATION_ENABLED) {
+      // In dev mode, just show an alert
+      alert("Logout disabled in development mode");
+      return;
+    }
     await SecureStore.deleteItemAsync("token");
     router.replace("/(auth)/login");
   };

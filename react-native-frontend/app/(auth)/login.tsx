@@ -9,8 +9,7 @@ import {
 import { useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-
-const API_URL = "http://192.168.68.126:8080";
+import { API_URL } from "../config";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -110,7 +109,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#379eff",
+    backgroundColor: "#c2410c",
     padding: 10,
     borderRadius: 5,
     flex: 1,
