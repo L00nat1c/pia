@@ -3,12 +3,18 @@ import ReviewCard from "../components/ReviewCard";
 import { useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { AUTHENTICATION_ENABLED } from "../config";
 
 // This file uses the ReviewCard component to dynamically render list of reviews. Currently hardcoded, but will connect to DB.
 
 export default function Index() {
   useEffect(() => {
     const checkAuth = async () => {
+      if (!AUTHENTICATION_ENABLED) {
+        // Skip authentication check in development mode
+        return;
+      }
+
       const token = await SecureStore.getItemAsync("token");
 
       if (token) {
@@ -63,8 +69,7 @@ export default function Index() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#080808", width: "100%" }}
-      contentContainerStyle={{ alignItems: "center", paddingVertical: 10 }}
+      style={{ flex: 1, backgroundColor: "#080808" }}
     >
       {reviews.map((review, index) => (
         <ReviewCard
