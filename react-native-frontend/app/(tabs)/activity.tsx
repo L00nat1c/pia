@@ -34,6 +34,7 @@ type Friend = {
 
 type Review = {
   id: number;
+  userId: number;
   profileImage: any;
   username: string;
   rating: number;
@@ -160,6 +161,7 @@ export default function Activity() {
     const mockReviews = [
       {
         id: 1,
+        userId: 3,
         profileImage: require("../../assets/images/profile-image.jpg"),
         username: "Alex Johnson",
         rating: 5,
@@ -173,6 +175,7 @@ export default function Activity() {
       },
       {
         id: 2,
+        userId: 2,
         profileImage: require("../../assets/images/profile-icon-9.png"),
         username: "Sergio Guerra",
         rating: 5,
@@ -242,6 +245,10 @@ export default function Activity() {
                 reviewText={review.reviewText}
                 likes={review.likes}
                 comments={review.comments}
+                onPressProfile={() => router.push({
+                  pathname: "/user/[id]",
+                  params: { id: review.userId }
+                })}
                 repeats={review.repeats}
               />
             ))
