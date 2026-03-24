@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "artists")
-public class artists {
+public class artistsDB {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,16 +25,16 @@ public class artists {
     @Column(name = "total_review_count")
     private Integer totalReviewCount;
 
-    public artists() {}
+    public artistsDB() {}
 
-    public artists(Long artistId, String name, Double averageRating, Integer totalReviewCount) {
+    public artistsDB(Long artistId, String name, Double averageRating, Integer totalReviewCount) {
         this.artistId = artistId;
         this.name = name;
         this.averageRating = averageRating;
         this.totalReviewCount = totalReviewCount;
     }
 
-    public artists(String name, Double averageRating, Integer totalReviewCount) {
+    public artistsDB(String name, Double averageRating, Integer totalReviewCount) {
         this.name = name;
         this.averageRating = averageRating;
         this.totalReviewCount = totalReviewCount;

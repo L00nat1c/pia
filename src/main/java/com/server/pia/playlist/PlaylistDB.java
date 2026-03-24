@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "playlists")
-public class Playlist {
+public class PlaylistDB {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +32,9 @@ public class Playlist {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
-    public Playlist() {}
+    public PlaylistDB() {}
 
-    public Playlist(Long playlistId, Long userId, String name, String description, String coverImage, LocalDate createdAt) {
+    public PlaylistDB(Long playlistId, Long userId, String name, String description, String coverImage, LocalDate createdAt) {
         this.playlistId = playlistId;
         this.userId = userId;
         this.name = name;
@@ -43,7 +43,7 @@ public class Playlist {
         this.createdAt = createdAt;
     }
 
-    public Playlist(Long userId, String name, String description, String coverImage, LocalDate createdAt) {
+    public PlaylistDB(Long userId, String name, String description, String coverImage, LocalDate createdAt) {
         this.userId = userId;
         this.name = name;
         this.description = description;

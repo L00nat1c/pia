@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class ArtistService {
+public class ArtistServiceDB {
 
     @Autowired
-    private artistsrepository artistRepo;
+    private artistsrepositoryDB artistRepo;
 
     // Get all artists
     public Object getAllArtists() {
@@ -16,7 +16,7 @@ public class ArtistService {
     }
 
     // Get artist by ID
-    public artists getArtistById(long artistId) {
+    public artistsDB getArtistById(long artistId) {
         return artistRepo.findById(artistId).orElse(null);
     }
 
@@ -31,12 +31,12 @@ public class ArtistService {
     }
 
     // Add new artist
-    public artists addArtist(artists artist) {
+    public artistsDB addArtist(artistsDB artist) {
         return artistRepo.save(artist);
     }
 
     // Update existing artist
-    public artists updateArtist(Long artistId, artists artist) {
+    public artistsDB updateArtist(Long artistId, artistsDB artist) {
     artist.setArtistId(artistId);
     return artistRepo.save(artist);
 }

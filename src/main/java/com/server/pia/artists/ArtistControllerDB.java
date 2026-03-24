@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/artists")
-public class ArtistController {
+@RequestMapping("/api/public/artists")
+public class ArtistControllerDB {
 
     @Autowired
-    private ArtistService artistService;
+    private ArtistServiceDB artistService;
 
     // Get all artists
     @GetMapping
@@ -18,7 +18,7 @@ public class ArtistController {
 
     // Get artist by ID
     @GetMapping("/{id}")
-    public artists getArtistById(@PathVariable long id) {
+    public artistsDB getArtistById(@PathVariable long id) {
         return artistService.getArtistById(id);
     }
 
@@ -36,13 +36,13 @@ public class ArtistController {
 
     // Add a new artist
     @PostMapping
-    public Object addArtist(@RequestBody artists artist) {
+    public Object addArtist(@RequestBody artistsDB artist) {
         return artistService.addArtist(artist);
     }
 
     // Update artist
     @PutMapping("/{id}")
-    public artists updateArtist(@PathVariable Long id, @RequestBody artists artist) {
+    public artistsDB updateArtist(@PathVariable Long id, @RequestBody artistsDB artist) {
         artistService.updateArtist(id, artist);
         return artistService.getArtistById(id);
     }

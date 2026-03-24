@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "music")
-public class Music {
+public class MusicDB {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,9 +44,9 @@ public class Music {
     @Column(name = "spotify_id")
     private String spotifyId;
 
-    public Music() {}
+    public MusicDB() {}
 
-    public Music(Long musicId, Long artistId, String name, String description, String genre,
+    public MusicDB(Long musicId, Long artistId, String name, String description, String genre,
                  Integer lengthSeconds, String coverImage, Double averageRating,
                  Integer reviewCount, String createdAt, String spotifyId) {
         this.musicId = musicId;
@@ -62,7 +62,7 @@ public class Music {
         this.spotifyId = spotifyId;
     }
 
-    public Music(Long artistId, String name, String description, String genre,
+    public MusicDB(Long artistId, String name, String description, String genre,
                  Integer lengthSeconds, String coverImage, Double averageRating,
                  Integer reviewCount, String createdAt, String spotifyId) {
         this.artistId = artistId;
