@@ -7,21 +7,21 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MusicRepository extends JpaRepository<Music, Long> {
+public interface MusicRepositoryDB extends JpaRepository<MusicDB, Long> {
 
     // Find by exact name
-    List<Music> findByName(String name);
+    List<MusicDB> findByName(String name);
 
     // Find all music by artist id
-    List<Music> findByArtistId(Long artistId);
+    List<MusicDB> findByArtistId(Long artistId);
 
     // Find by genre
-    List<Music> findByGenre(String genre);
+    List<MusicDB> findByGenre(String genre);
 
     // Find music by average rating
-    List<Music> findByAverageRating(double averageRating);
+    List<MusicDB> findByAverageRating(double averageRating);
 
     // Search music by partial name (case-insensitive)
     @Query(value = "SELECT * FROM music m WHERE LOWER(m.name) LIKE LOWER(CONCAT('%', ?1, '%'))", nativeQuery = true)
-    List<Music> getMusicByName(String name);
+    List<MusicDB> getMusicByName(String name);
 }

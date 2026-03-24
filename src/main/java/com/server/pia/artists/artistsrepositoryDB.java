@@ -7,15 +7,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface artistsrepository extends JpaRepository<artists, Long> {
+public interface artistsrepositoryDB extends JpaRepository<artistsDB, Long> {
 
     // Find by exact name
-    List<artists> findByName(String name);
+    List<artistsDB> findByName(String name);
 
     // Find by average rating
-    List<artists> findByAverageRating(double averageRating);
+    List<artistsDB> findByAverageRating(double averageRating);
 
     // Search artists by partial name (case-insensitive)
     @Query(value = "SELECT * FROM artists a WHERE LOWER(a.name) LIKE LOWER(CONCAT('%', ?1, '%'))", nativeQuery = true)
-    List<artists> getArtistsByName(String name);
+    List<artistsDB> getArtistsByName(String name);
 }

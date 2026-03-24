@@ -7,15 +7,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
+public interface PlaylistRepositoryDB extends JpaRepository<PlaylistDB, Long> {
 
     // Find playlists by exact name
-    List<Playlist> findByName(String name);
+    List<PlaylistDB> findByName(String name);
 
     // Find playlists by user ID
-    List<Playlist> findByUserId(Long userId);
+    List<PlaylistDB> findByUserId(Long userId);
 
     // Search playlists by partial name (case-insensitive)
     @Query(value = "SELECT * FROM playlists p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', ?1, '%'))", nativeQuery = true)
-    List<Playlist> getPlaylistsByName(String name);
+    List<PlaylistDB> getPlaylistsByName(String name);
 }

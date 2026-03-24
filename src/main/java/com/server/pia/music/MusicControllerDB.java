@@ -3,7 +3,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/music")
+@RequestMapping("/api/public/music")
 public class MusicControllerDB {
 
     @Autowired
@@ -17,7 +17,7 @@ public class MusicControllerDB {
 
     // Get music by ID
     @GetMapping("/{id}")
-    public Music getMusicById(@PathVariable long id) {
+    public MusicDB getMusicById(@PathVariable long id) {
         return musicService.getMusicById(id);
     }
 
@@ -47,13 +47,13 @@ public class MusicControllerDB {
 
     // Add new music
     @PostMapping
-    public Object addMusic(@RequestBody Music music) {
+    public Object addMusic(@RequestBody MusicDB music) {
         return musicService.addMusic(music);
     }
 
     // Update music
     @PutMapping("/{id}")
-    public Music updateMusic(@PathVariable Long id, @RequestBody Music music) {
+    public MusicDB updateMusic(@PathVariable Long id, @RequestBody MusicDB music) {
         musicService.updateMusic(id, music);
         return musicService.getMusicById(id);
     }

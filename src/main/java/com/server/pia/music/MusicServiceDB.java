@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class MusicServiceDB {
 
     @Autowired
-    private MusicRepository musicRepo;
+    private MusicRepositoryDB musicRepo;
 
     // Get all music
     public Object getAllMusic() {
@@ -14,7 +14,7 @@ public class MusicServiceDB {
     }
 
     // Get music by ID
-    public Music getMusicById(long musicId) {
+    public MusicDB getMusicById(long musicId) {
         return musicRepo.findById(musicId).orElse(null);
     }
 
@@ -39,12 +39,12 @@ public class MusicServiceDB {
     }
 
     // Add new music
-    public Music addMusic(Music music) {
+    public MusicDB addMusic(MusicDB music) {
         return musicRepo.save(music);
     }
 
     // Update existing music
-    public Music updateMusic(Long musicId, Music music) {
+    public MusicDB updateMusic(Long musicId, MusicDB music) {
         music.setMusicId(musicId);
         return musicRepo.save(music);
     }

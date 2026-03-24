@@ -6,38 +6,38 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PlaylistService {
+public class PlaylistServiceDB {
 
     @Autowired
-    private PlaylistRepository playlistRepo;
+    private PlaylistRepositoryDB playlistRepo;
 
     // Get all playlists
-    public List<Playlist> getAllPlaylists() {
+    public List<PlaylistDB> getAllPlaylists() {
         return playlistRepo.findAll();
     }
 
     // Get playlist by ID
-    public Playlist getPlaylistById(Long playlistId) {
+    public PlaylistDB getPlaylistById(Long playlistId) {
         return playlistRepo.findById(playlistId).orElse(null);
     }
 
     // Get playlists by user ID
-    public List<Playlist> getPlaylistsByUserId(Long userId) {
+    public List<PlaylistDB> getPlaylistsByUserId(Long userId) {
         return playlistRepo.findByUserId(userId);
     }
 
     // Get playlists by name
-    public List<Playlist> getPlaylistsByName(String name) {
+    public List<PlaylistDB> getPlaylistsByName(String name) {
         return playlistRepo.findByName(name);
     }
 
     // Add new playlist
-    public Playlist addPlaylist(Playlist playlist) {
+    public PlaylistDB addPlaylist(PlaylistDB playlist) {
         return playlistRepo.save(playlist);
     }
 
     // Update existing playlist
-    public Playlist updatePlaylist(Long playlistId, Playlist playlist) {
+    public PlaylistDB updatePlaylist(Long playlistId, PlaylistDB playlist) {
         playlist.setPlaylistId(playlistId);
         return playlistRepo.save(playlist);
     }
