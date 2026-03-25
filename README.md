@@ -98,3 +98,29 @@ user_token is from POST login
   "musicId": 3
 }
 ```
+
+### /api/lastfm/track
+Gets track data from Last.fm API
+(Needs JWT login in current state)
+
+**Body**
+**JSON**
+```
+{
+  "artist": "Radiohead",
+  "track": "Creep"
+}
+```
+
+### /api/deezer/track
+Gets track preview url from Deezer
+(Needs JWT login in current state)
+
+**Body**
+**JSON**
+```
+{
+  "artist": "Radiohead",
+  "track": "Creep"
+}
+```
