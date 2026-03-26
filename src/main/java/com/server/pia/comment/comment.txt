@@ -1,0 +1,31 @@
+The currently available calls for the comments table are:
+
+http://localhost:8080/api/public/comments
+    list all the comments in the database
+
+http://localhost:8080/api/public/comments/(int value)
+    get only the comment with that id value
+
+http://localhost:8080/api/public/comments/user/(int value)
+    get only the comments from the user with that id value
+
+
+http://localhost:8080/api/public/comments/review/(int value)
+    get only the comments from that review
+
+POST: http://localhost:8080/api/public/comment
+        Create a new comment. Sample JSON:
+        {
+  "userId": 2,
+  "reviewId": 2,
+  "rating": 5,
+  "createdAt": "2026-03-25",
+  "commentText": "Testing reviewID 2"
+}
+
+PUT: http://localhost:8080/api/public/comment/(int value)
+    update the playcommentlist with that id value
+
+Delete: http://localhost:8080/api/public/comment/(int value)
+    delete only the comment with that id value
+
