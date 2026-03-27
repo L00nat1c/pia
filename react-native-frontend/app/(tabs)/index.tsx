@@ -29,6 +29,7 @@ export default function Index() {
 
   const reviews = [
     {
+      userId: 2,
       profileImage: require("../../assets/images/profile-icon-9.png"),
       username: "Sergio Guerra",
       rating: 5,
@@ -41,6 +42,7 @@ export default function Index() {
       repeats: 5,
     },
     {
+      userId: 3,
       profileImage: require("../../assets/images/profile-image.jpg"),
       username: "Alex Johnson",
       rating: 5,
@@ -54,6 +56,7 @@ export default function Index() {
       repeats: 3,
     },
     {
+      userId: 2,
       profileImage: require("../../assets/images/profile-icon-9.png"),
       username: "Sergio Guerra",
       rating: 5,
@@ -84,6 +87,10 @@ export default function Index() {
           likes={review.likes}
           comments={review.comments}
           repeats={review.repeats}
+          onPressProfile={() => router.push({
+            pathname: "/user/[id]",
+            params: { id: review.userId }
+          })}
         />
       ))}
     </ScrollView>
