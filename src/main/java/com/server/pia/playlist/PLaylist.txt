@@ -1,7 +1,7 @@
 The currently available calls for the Playlist table are:
 
 http://localhost:8080/api/public/playlists
-    list all the artist in the database
+    list all the playlists in the database
 
 http://localhost:8080/api/public/playlists/(int value)
     get only the playlist with that id value
