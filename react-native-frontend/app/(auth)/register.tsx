@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import { router } from "expo-router";
 
-import { API_URL } from "../config";
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Login() {
   const [username, setUsername] = useState("");

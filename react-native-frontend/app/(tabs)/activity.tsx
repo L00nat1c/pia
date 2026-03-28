@@ -12,7 +12,6 @@ import { useEffect, useState, useRef } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { AUTHENTICATION_ENABLED } from "../config";
 import ReviewCard from "../components/ReviewCard";
 import FriendsDrawer from "../components/FriendsDrawer";
 import FriendDetailsModal from "../components/FriendDetailsModal";
@@ -70,7 +69,10 @@ export default function Activity() {
           return false;
         }
         // Only activate on horizontal left swipe, ignore vertical scrolling
-        return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && gestureState.dx < -15;
+        return (
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
+          gestureState.dx < -15
+        );
       },
       onPanResponderMove: (_, gestureState) => {
         // Swiping left from right edge
@@ -78,16 +80,11 @@ export default function Activity() {
           setIsDrawerOpen(true);
         }
       },
-    })
+    }),
   ).current;
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!AUTHENTICATION_ENABLED) {
-        // Skip authentication check in development mode
-        return;
-      }
-
       const token = await SecureStore.getItemAsync("token");
 
       if (token) {
@@ -166,7 +163,8 @@ export default function Activity() {
         songImage: require("../../assets/images/album-cover.svg"),
         songTitle: "The Dark Side of the Moon",
         songArtist: "Pink Floyd",
-        reviewText: "A timeless masterpiece that transcends genres and generations",
+        reviewText:
+          "A timeless masterpiece that transcends genres and generations",
         likes: 42,
         comments: 12,
         repeats: 3,
