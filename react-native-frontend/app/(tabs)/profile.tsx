@@ -130,6 +130,7 @@ export default function Profile() {
 
   useEffect(() => {
     fetchUserData();
+    fetchUserReviews();
   }, []);
 
   useEffect(() => {

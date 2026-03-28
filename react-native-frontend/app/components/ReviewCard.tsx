@@ -20,6 +20,7 @@ type ReviewCardProps = {
   onShare?: () => void;
   onRepeat?: () => void;
   onPressSong?: () => void;
+  onPressProfile?: () => void;
 };
 
 export default function ReviewCard({
@@ -39,26 +40,29 @@ export default function ReviewCard({
   onShare,
   onRepeat,
   onPressSong,
+  onPressProfile,
 }: ReviewCardProps) {
   return (
     <View style={styles.card}>
       {/* Header */}
-      <View style={styles.cardHeader}>
-        <Image source={profileImage} style={styles.cardProfileIcon} />
-        <View style={styles.cardHeaderInfo}>
-          <Text style={styles.cardProfileText}>{username}</Text>
-          <View style={styles.cardStarRating}>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Ionicons
-                key={i}
-                name={i <= rating ? "star" : "star-outline"}
-                size={12}
-                color="gold"
-              />
-            ))}
+      <Pressable onPress={onPressProfile}>
+        <View style={styles.cardHeader}>
+          <Image source={profileImage} style={styles.cardProfileIcon} />
+          <View style={styles.cardHeaderInfo}>
+            <Text style={styles.cardProfileText}>{username}</Text>
+            <View style={styles.cardStarRating}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Ionicons
+                  key={i}
+                  name={i <= rating ? "star" : "star-outline"}
+                  size={12}
+                  color="gold"
+                />
+              ))}
+            </View>
           </View>
         </View>
-      </View>
+      </Pressable>
 
       {/* Song Info */}
       <Pressable style={styles.cardSongPressable} onPress={onPressSong}>
