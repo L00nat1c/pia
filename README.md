@@ -53,6 +53,9 @@ Authorization: Bearer user_token
 ### /api/music/trending
 Gets trending music from Spotify Web API
 
+### /api/music/search?q=(example search)
+Gets a list of search results from Spotify API
+
 ## POSTs
 
 ### /api/auth/register
@@ -115,6 +118,19 @@ Gets track data from Last.fm API
 ### /api/deezer/track
 Gets track preview url from Deezer
 (Needs JWT login in current state)
+
+**Body**
+**JSON**
+```
+{
+  "artist": "Radiohead",
+  "track": "Creep"
+}
+```
+
+### /api/music/enrich
+Gets track data from all 3 APIs and stores it in the database
+(Needs JWT login)
 
 **Body**
 **JSON**
