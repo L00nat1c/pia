@@ -49,4 +49,11 @@ public class MusicController {
             )
         );
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TrackResponseDTO>> searchMultipleTracks(
+            @RequestParam String q
+    ) {
+        return ResponseEntity.ok(musicService.searchMultipleTracks(q));
+    }
 }

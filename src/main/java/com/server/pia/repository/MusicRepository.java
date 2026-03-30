@@ -21,4 +21,8 @@ public interface MusicRepository extends JpaRepository<Music, Long> {
     Optional<Music> findBySpotifyId(String spotifyId);
 
     Optional<Music> findByNameIgnoreCaseAndArtist_NameIgnoreCase(String name, String artist);
+
+    List<Music> findByNameContainingIgnoreCase(String name);
+
+    List<Music> findByArtist_NameContainingIgnoreCase(String artistName);
 }

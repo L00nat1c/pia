@@ -26,5 +26,7 @@ public class SpotifyService {
         return spotifyClient.searchTrack(artist, track);
     }
     
-    
+    public String searchMultipleTracks(String query) {
+        return spotifyClient.searchMultipleTracks(query);
+    }
 }

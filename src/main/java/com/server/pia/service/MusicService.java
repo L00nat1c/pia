@@ -11,6 +11,10 @@ import com.server.pia.entity.Artist;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.pia.dto.TrackResponseDTO;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 
 @Service
 public class MusicService {
@@ -188,5 +192,70 @@ public class MusicService {
         dto.setGenre(music.getGenre());
 
         return dto;
+    }
+
+    public List<TrackResponseDTO> searchMultipleTracks(String query) {
+
+        String cleanQuery = query.trim();
+
+        // Search database
+        List<Music> byName = musicRepository.findByNameContainingIgnoreCase(cleanQuery);
+        List<Music> byArtist = musicRepository.findByArtist_NameContainingIgnoreCase(cleanQuery);
+
+        // Combine results (avoid duplicates)
+        Set<Music> combined = new HashSet<>();
+        combined.addAll(byName);
+        combined.addAll(byArtist);
+
+        List<TrackResponseDTO> results = new ArrayList<>(
+                combined.stream()
+                        .map(this::mapToDTO)
+                        .toList()
+        );
+        
+        // Return early if enough results found
+        if (results.size() >= 5) {
+            return results;
+        }
+
+        // Spotify search
+        List<TrackResponseDTO> spotifyResults = searchSpotifyTracks(cleanQuery);
+
+        results.addAll(spotifyResults);
+
+        return results;
+    }
+
+    private List<TrackResponseDTO> searchSpotifyTracks(String query) {
+
+        String json = spotifyService.searchMultipleTracks(query);
+
+        List<TrackResponseDTO> results = new ArrayList<>();
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode items = mapper.readTree(json)
+                    .path("tracks")
+                    .path("items");
+
+            for (JsonNode item : items) {
+
+                TrackResponseDTO dto = new TrackResponseDTO();
+
+                dto.setName(item.path("name").asText());
+                dto.setArtist(item.path("artists").get(0).path("name").asText());
+                dto.setDuration(item.path("duration_ms").asInt() / 1000);
+                dto.setCoverImage(
+                        item.path("album").path("images").get(0).path("url").asText()
+                );
+
+                results.add(dto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return results;
     }
 }
