@@ -8,6 +8,7 @@ import com.server.pia.service.MusicService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import com.server.pia.dto.TrackRequestDTO;
+import com.server.pia.dto.TrackResponseDTO;
 
 @RestController
 @RequestMapping("/api/music")
@@ -38,9 +39,14 @@ public class MusicController {
     }
 
     @PostMapping("/enrich")
-    public ResponseEntity<Music> enrichTrack(@RequestBody TrackRequestDTO request) {
+    public ResponseEntity<TrackResponseDTO> enrichTrack(
+            @RequestBody TrackRequestDTO request
+    ) {
         return ResponseEntity.ok(
-            musicService.getOrCreateTrack(request.getArtist(), request.getTrack())
+            musicService.getOrCreateTrack(
+                request.getArtist(),
+                request.getTrack()
+            )
         );
     }
 }

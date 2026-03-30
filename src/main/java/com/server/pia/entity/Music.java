@@ -93,17 +93,17 @@ public class Music {
     public String getGenre() { return genre; }
     public void setGenre(String genre) { this.genre = genre; }
 
-    public Integer getLength_seconds() { return length_seconds; }
-    public void setLength_seconds(Integer length_seconds) { this.length_seconds = length_seconds; }
+    public Integer getLengthSeconds() { return length_seconds; }
+    public void setLengthSeconds(Integer length_seconds) { this.length_seconds = length_seconds; }
 
-    public String getCover_image() { return cover_image; }
-    public void setCover_image(String cover_image) { this.cover_image = cover_image; }
+    public String getCoverImage() { return cover_image; }
+    public void setCoverImage(String cover_image) { this.cover_image = cover_image; }
 
-    public Double getAverage_rating() { return average_rating; }
-    public void setAverage_rating(Double average_rating) { this.average_rating = average_rating; }
+    public Double getAverageRating() { return average_rating; }
+    public void setAverageRating(Double average_rating) { this.average_rating = average_rating; }
 
-    public Integer getReview_count() { return review_count; }
-    public void setReview_count(Integer review_count) { this.review_count = review_count; }
+    public Integer getReviewCount() { return review_count; }
+    public void setReviewCount(Integer review_count) { this.review_count = review_count; }
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }

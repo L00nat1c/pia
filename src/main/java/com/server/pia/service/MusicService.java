@@ -10,6 +10,7 @@ import com.server.pia.entity.Music;
 import com.server.pia.entity.Artist;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.pia.dto.TrackResponseDTO;
 
 @Service
 public class MusicService {
@@ -101,17 +102,21 @@ public class MusicService {
         return null;
     }
 
-    public Music getOrCreateTrack(String artistName, String trackName) {
+    public TrackResponseDTO getOrCreateTrack(String artistName, String trackName) {
+
+        // Trim the artist and track name / delete extra spaces
+        String cleanArtist = artistName.trim();
+        String cleanTrack = trackName.trim();
 
         // Spotify search
-        String spotifyJson = spotifyService.searchTrack(artistName, trackName);
+        String spotifyJson = spotifyService.searchTrack(cleanArtist, cleanTrack);
         String spotifyId = extractSpotifyId(spotifyJson);
 
         // Check if music track is in database
         if (spotifyId != null) {
             var existing = musicRepository.findBySpotifyId(spotifyId);
             if (existing.isPresent()) {
-                return existing.get();
+                return mapToDTO(existing.get());
             }
         }
 
@@ -120,27 +125,33 @@ public class MusicService {
                 musicRepository.findByNameIgnoreCaseAndArtist_NameIgnoreCase(trackName, artistName);
 
         if (existingByName.isPresent()) {
-            return existingByName.get();
+            return mapToDTO(existingByName.get());
         }
 
         // Call other APIs
-        var lastfm = lastFmService.getTrackInfo(artistName, trackName);
-        var deezer = deezerService.searchTrack(artistName, trackName);
+        var lastfm = lastFmService.getTrackInfo(cleanArtist, cleanTrack);
+        var deezer = deezerService.searchTrack(cleanArtist, cleanTrack);
+
+        
 
         // Get artist from database or create a new one
-        Artist artist = artistRepository.findByNameIgnoreCase(artistName)
+        Artist artist = artistRepository.findByNameIgnoreCase(cleanArtist)
                 .orElseGet(() -> {
                     Artist newArtist = new Artist();
-                    newArtist.setName(artistName);
+                    newArtist.setName(cleanArtist);
                     return artistRepository.save(newArtist);
                 });
 
         // Build Music entity
         Music music = new Music();
-        music.setName(trackName);
+        music.setName(cleanTrack);
+
         music.setArtist(artist);
-        music.setCover_image(extractCoverImage(spotifyJson));
-        music.setLength_seconds(extractDuration(spotifyJson));
+        
+        if (spotifyJson != null) {
+            music.setCoverImage(extractCoverImage(spotifyJson));
+            music.setLengthSeconds(extractDuration(spotifyJson));
+        }
 
         if (spotifyId != null) {
             music.setSpotifyId(spotifyId);
@@ -155,6 +166,27 @@ public class MusicService {
             music.setDeezerPreviewUrl(deezer.getPreviewUrl());
         }
 
-        return musicRepository.save(music);
+        Music saved = musicRepository.save(music);
+        return mapToDTO(saved);
+    }
+
+    private TrackResponseDTO mapToDTO(Music music) {
+        TrackResponseDTO dto = new TrackResponseDTO();
+
+        dto.setId(music.getMusicId());
+        dto.setName(music.getName());
+
+        if (music.getArtist() != null) {
+            dto.setArtist(music.getArtist().getName());
+        }
+
+        dto.setCoverImage(music.getCoverImage());
+        dto.setPreviewUrl(music.getDeezerPreviewUrl());
+        dto.setDuration(music.getLengthSeconds());
+        dto.setPlaycount(music.getLastfmPlaycount());
+        dto.setTags(music.getTags());
+        dto.setGenre(music.getGenre());
+
+        return dto;
     }
 }
