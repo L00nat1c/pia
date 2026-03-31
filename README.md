@@ -130,6 +130,7 @@ Gets track preview url from Deezer
 
 ### /api/music/enrich
 Gets track data from all 3 APIs and stores it in the database
+Also returns a JSON of the track
 (Needs JWT login)
 
 **Body**
