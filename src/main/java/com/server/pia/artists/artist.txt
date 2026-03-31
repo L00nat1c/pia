@@ -1,0 +1,35 @@
+The currently available calls for the artist table are:
+
+http://localhost:8080/artists
+    list all the artist in the database
+
+http://localhost:8080/artists/(int value)
+    Will list the artist linked to that id value
+
+http://localhost:8080/artists/name/(string)
+    Will display the artist with that name
+        note: Currently, it is not possible to search it just by first or last name. The whole name is needed.
+        For example, to look up Kendrick Lamar the (string) should be "Kendrick%20Lamar". "%20" replaces the space
+
+http://localhost:8080/artists/rating/(int value)
+    Will display the artists with the specified rating.
+
+
+POST:   http://localhost:8080/artists
+    Will add an artist to the database. For example:
+{
+  "name": "Daft Punk",
+  "averageRating": 2.3,
+  "totalReviewCount": 10
+}
+
+
+PUT:    http://localhost:8080/artists/(id)
+    Change information of a current artist.
+
+
+DElETE:    http://localhost:8080/artists/(id)
+    Delete an artist from the database.
+  
+
+}

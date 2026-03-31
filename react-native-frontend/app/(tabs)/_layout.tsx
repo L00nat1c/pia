@@ -7,7 +7,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#379eff",
+        tabBarActiveTintColor: "#c2410c",
         tabBarInactiveTintColor: "#958d80",
         tabBarStyle: {
           height: 70,
@@ -49,6 +49,20 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="notifications" size={size} color={color} />
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="review"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
