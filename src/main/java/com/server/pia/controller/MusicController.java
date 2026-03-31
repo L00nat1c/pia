@@ -33,9 +33,9 @@ public class MusicController {
         return trendingService.getTrendingMusic();
     }
     
-    @GetMapping("/{trackId}")
-    public String getTrackById(@PathVariable String trackId) {
-        return musicService.getTrackById(trackId);
+    @GetMapping("/spotify/{trackId}")
+    public String getTrackBySpotifyId(@PathVariable String trackId) {
+        return musicService.getTrackBySpotifyId(trackId);
     }
 
     @PostMapping("/enrich")
@@ -55,5 +55,10 @@ public class MusicController {
             @RequestParam String q
     ) {
         return ResponseEntity.ok(musicService.searchMultipleTracks(q));
+    }
+
+    @GetMapping("/db/{id}")
+    public ResponseEntity<TrackResponseDTO> getTrackById(@PathVariable Long id) {
+        return ResponseEntity.ok(musicService.getTrackById(id));
     }
 }

@@ -43,7 +43,7 @@ public class MusicService {
         return spotifyService.getTrendingTracks();
     }
 
-    public String getTrackById(String trackId) {
+    public String getTrackBySpotifyId(String trackId) {
         return spotifyService.getTrack(trackId);
     }
 
@@ -257,5 +257,13 @@ public class MusicService {
         }
 
         return results;
+    }
+
+    public TrackResponseDTO getTrackById(Long id) {
+
+        Music music = musicRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Track not found"));
+
+        return mapToDTO(music);
     }
 }
