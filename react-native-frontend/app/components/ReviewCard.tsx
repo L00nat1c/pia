@@ -20,6 +20,7 @@ type ReviewCardProps = {
   onShare?: () => void;
   onRepeat?: () => void;
   onPressSong?: () => void;
+  onPressProfile?: () => void;
 };
 
 export default function ReviewCard({
@@ -39,26 +40,29 @@ export default function ReviewCard({
   onShare,
   onRepeat,
   onPressSong,
+  onPressProfile,
 }: ReviewCardProps) {
   return (
     <View style={styles.card}>
       {/* Header */}
-      <View style={styles.cardHeader}>
-        <Image source={profileImage} style={styles.cardProfileIcon} />
-        <View style={styles.cardHeaderInfo}>
-          <Text style={styles.cardProfileText}>{username}</Text>
-          <View style={styles.cardStarRating}>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Ionicons
-                key={i}
-                name={i <= rating ? "star" : "star-outline"}
-                size={12}
-                color="gold"
-              />
-            ))}
+      <Pressable onPress={onPressProfile}>
+        <View style={styles.cardHeader}>
+          <Image source={profileImage} style={styles.cardProfileIcon} />
+          <View style={styles.cardHeaderInfo}>
+            <Text style={styles.cardProfileText}>{username}</Text>
+            <View style={styles.cardStarRating}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Ionicons
+                  key={i}
+                  name={i <= rating ? "star" : "star-outline"}
+                  size={12}
+                  color="gold"
+                />
+              ))}
+            </View>
           </View>
         </View>
-      </View>
+      </Pressable>
 
       {/* Song Info */}
       <Pressable style={styles.cardSongPressable} onPress={onPressSong}>
@@ -105,20 +109,17 @@ export default function ReviewCard({
 // This is like CSS. But doesn't cascade and is scoped to whatever its assigned with. So styles.card only applies to the card component, and not any other component that has a style of card.
 const styles = StyleSheet.create({
   card: {
-    width: "90%",
-    backgroundColor: "#131516",
-    borderRadius: 12,
-    borderColor: "#6d675a",
-    borderWidth: 1,
-    marginVertical: 10,
-    padding: 8,
-    paddingBottom: 12,
+    width: "100%",
+    backgroundColor: "#080808",
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   cardHeader: {
-    height: 50,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
+    marginBottom: 12,
   },
   cardProfileIcon: {
     width: 40,
@@ -126,67 +127,67 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   cardHeaderInfo: {
-    marginLeft: 10,
+    marginLeft: 12,
     justifyContent: "center",
   },
   cardProfileText: {
     color: "#e5e3e1",
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
   },
   cardStarRating: {
     flexDirection: "row",
-    marginTop: 2,
+    marginTop: 3,
   },
   cardSongPressable: {
-    height: 100,
-    backgroundColor: "#080808",
-    marginHorizontal: 10,
-    borderRadius: 12,
-    padding: 10,
-    borderColor: "#716a5d",
-    borderWidth: 0.25,
-    marginTop: 5,
+    backgroundColor: "#0f0f0f",
+    borderRadius: 8,
+    padding: 12,
+    borderColor: "#2a2a2a",
+    borderWidth: 1,
+    marginBottom: 12,
   },
   cardSongInfo: {
     flexDirection: "row",
     alignItems: "center",
   },
   cardSongImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: 70,
+    height: 70,
+    borderRadius: 6,
   },
   songTitle: {
     color: "#e7e5e2",
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   songArtist: {
     color: "#88827a",
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: 13,
+    marginTop: 4,
   },
   cardReviewContainer: {
-    marginHorizontal: 10,
-    marginTop: 5,
+    marginBottom: 12,
   },
   cardReviewText: {
     color: "#cbc6bf",
-    fontSize: 12,
+    fontSize: 14,
+    lineHeight: 20,
   },
   interactionContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
   },
   interactionItem: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
   interactionText: {
     color: "#9b9486",
-    marginLeft: 5,
-    fontSize: 12,
+    marginLeft: 6,
+    fontSize: 13,
   },
 });

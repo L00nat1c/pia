@@ -53,6 +53,12 @@ Authorization: Bearer user_token
 ### /api/music/trending
 Gets trending music from Spotify Web API
 
+### /api/reviews/music/{musicId}
+Gets reviews based on the musicId (the music_id in the database)
+
+### /api/reviews/user/{userId}
+Gets reviews based on the userId
+
 ### /api/music/search?q=(example search)
 Gets a list of search results from Spotify API
 
@@ -139,5 +145,23 @@ Also returns a JSON of the track
 {
   "artist": "Radiohead",
   "track": "Creep"
+}
+```
+
+### /api/reviews
+Creates a review on a music track based on the current logged in user.
+
+**Header**
+```
+Authorization: Bearer user_token
+Content-Type: application/json
+```
+
+**Body** **JSON**
+```
+{
+   "musicId": 1,
+   "rating": 5,
+   "reviewText": "Test review text"
 }
 ```

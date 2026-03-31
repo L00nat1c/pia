@@ -1,0 +1,31 @@
+The currently available calls for the Playlist table are:
+
+http://localhost:8080/api/public/playlists
+    list all the artist in the database
+
+http://localhost:8080/api/public/playlists/(int value)
+    get only the playlist with that id value
+
+http://localhost:8080/api/public/playlists/user/(int value)
+    get only the playlists from the user with that id value
+
+
+http://localhost:8080/api/public/playlists/name/(string value)
+    get only the playlist with that name
+
+POST: http://localhost:8080/api/public/playlists
+        Create a new playlist. Sample JSON:
+        {
+  "userId": 1,
+  "name": "Chill Vibes",
+  "description": "A collection of relaxing songs for evenings.",
+  "coverImage": "https://example.com/images/chill-vibes.jpg",
+  "createdAt": "2026-03-17"
+}
+
+PUT: http://localhost:8080/api/public/playlists/(int value)
+    update the playlist with that id value
+
+Delete: http://localhost:8080/api/public/playlists/(int value)
+    delete only the playlist with that id value
+
