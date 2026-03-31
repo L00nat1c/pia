@@ -59,6 +59,9 @@ Gets reviews based on the musicId (the music_id in the database)
 ### /api/reviews/user/{userId}
 Gets reviews based on the userId
 
+### /api/music/search?q=(example search)
+Gets a list of search results from Spotify API
+
 ## POSTs
 
 ### /api/auth/register
@@ -102,6 +105,46 @@ user_token is from POST login
 ```
 {
   "musicId": 3
+}
+```
+
+### /api/lastfm/track
+Gets track data from Last.fm API
+(Needs JWT login in current state)
+
+**Body**
+**JSON**
+```
+{
+  "artist": "Radiohead",
+  "track": "Creep"
+}
+```
+
+### /api/deezer/track
+Gets track preview url from Deezer
+(Needs JWT login in current state)
+
+**Body**
+**JSON**
+```
+{
+  "artist": "Radiohead",
+  "track": "Creep"
+}
+```
+
+### /api/music/enrich
+Gets track data from all 3 APIs and stores it in the database
+Also returns a JSON of the track
+(Needs JWT login)
+
+**Body**
+**JSON**
+```
+{
+  "artist": "Radiohead",
+  "track": "Creep"
 }
 ```
 
