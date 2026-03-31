@@ -56,6 +56,12 @@ Gets trending music from Spotify Web API
 ### /api/music/search?q=(example search)
 Gets a list of search results from Spotify API
 
+### /api/music/db/{musicId}
+Gets music data from database
+
+### /api/music/spotify/{spotifyId}
+Gets track data from Spotify API (Needs Spotify Id)
+
 ## POSTs
 
 ### /api/auth/register
