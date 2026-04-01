@@ -1,25 +1,41 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { router, usePathname } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function CustomHeader() {
   const pathname = usePathname();
   const showProfileButton = !pathname.startsWith("/(auth)");
+  const showBackButton = pathname.startsWith("/user/");
 
   const handleProfilePress = () => {
     router.push("../(tabs)/profile");
   };
 
+  const handleBackPress = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/(tabs)/profile");
+  };
+
   return (
     <View style={styles.headerContainer}>
       <View style={styles.container}>
-        {/* Mini vinyl disk logo */}
-        <View style={styles.vinylLogo}>
-          <View style={styles.vinylOuter}>
-            <View style={styles.vinylLabel}>
-              <View style={styles.vinylHole} />
+        {showBackButton ? (
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+            <Ionicons name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.vinylLogo}>
+            <View style={styles.vinylOuter}>
+              <View style={styles.vinylLabel}>
+                <View style={styles.vinylHole} />
+              </View>
             </View>
           </View>
-        </View>
+        )}
         <Text style={styles.title}>Play It Again</Text>
       </View>
       {showProfileButton ? (
@@ -58,6 +74,13 @@ const styles = StyleSheet.create({
   title: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  backButton: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileButton: {
     width: 25,

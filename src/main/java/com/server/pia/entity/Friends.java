@@ -22,4 +22,12 @@ public class Friends {
     private User friendUser;
 
     public Friends() {}
+
+    public Long getFriendId() { return friend_id; }
+
+    public LocalDate getCreatedAt() { return created_at; }
+
+    public User getUser() { return user; }
+
+    public User getFriendUser() { return friendUser; }
 }

@@ -1,5 +1,7 @@
 package com.server.pia.controller;
 
+import com.server.pia.dto.LastFmUsernameRequest;
+import com.server.pia.dto.UpdateProfileRequest;
 import com.server.pia.entity.User;
 import com.server.pia.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +42,38 @@ public class UserController {
 
         return userRepository.findById(userId)
                 .orElseThrow();
+    }
+
+    @PutMapping("/me/lastfm")
+    public User updateCurrentUserLastFm(@RequestBody LastFmUsernameRequest request) {
+        Long userId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = userRepository.findById(userId).orElseThrow();
+        String username = request.getLastfmUsername();
+        user.setLastfmUsername(username == null ? null : username.trim());
+
+        return userRepository.save(user);
+    }
+
+    @PutMapping("/me/profile")
+    public User updateCurrentUserProfile(@RequestBody UpdateProfileRequest request) {
+        Long userId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = userRepository.findById(userId).orElseThrow();
+
+        if (request.getUsername() != null && !request.getUsername().isBlank()) {
+            user.setUsername(request.getUsername().trim());
+        }
+        if (request.getBio() != null) {
+            user.setBio(request.getBio().trim());
+        }
+
+        return userRepository.save(user);
     }
 }

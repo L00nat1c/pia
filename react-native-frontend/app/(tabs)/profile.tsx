@@ -113,6 +113,7 @@ type UserData = {
   birthDate: string;
   createdAt?: string;
   profile_picture?: string;
+  bio?: string;
 };
 
 export default function Profile() {
@@ -196,7 +197,7 @@ export default function Profile() {
   };
 
   const handleEditProfile = () => {
-    router.push("/edit-profile" as any);
+    router.push("/edit-profile");
   };
 
   // const handleSettings = () => {
@@ -267,6 +268,9 @@ export default function Profile() {
         >
           <Text style={styles.username}>{userData.username}</Text>
         </TouchableOpacity>
+        {userData.bio ? (
+          <Text style={styles.bio}>{userData.bio}</Text>
+        ) : null}
         {userData.createdAt && (
           <View style={styles.joinedContainer}>
             <Ionicons name="calendar-outline" size={14} color="#88827a" />
@@ -509,6 +513,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 8,
+  },
+  bio: {
+    color: "#88827a",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 12,
+    paddingHorizontal: 24,
+    lineHeight: 20,
   },
   joinedContainer: {
     flexDirection: "row",

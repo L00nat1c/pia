@@ -4,6 +4,7 @@ import com.server.pia.entity.*;
 import com.server.pia.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -43,5 +44,17 @@ public class ReviewsService {
     public List<Reviews> getReviewsByUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         return reviewsRepository.findByUser(user);
+    }
+
+    public List<Reviews> getFeedForUsers(List<User> users) {
+        if (users.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return reviewsRepository.findByUserInOrderByReviewDateDescReviewIdDesc(users);
+    }
+
+    public Reviews getLatestReviewForUser(User user) {
+        return reviewsRepository.findTopByUserOrderByReviewDateDescReviewIdDesc(user);
     }
 }
