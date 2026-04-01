@@ -3,8 +3,6 @@
 // import * as SecureStore from "expo-secure-store";
 // import { router } from "expo-router";
 
-// const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 // export default function Profile() {
 //   const [userData, setUserData] = useState(null);
 
@@ -106,8 +104,7 @@ import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ReviewCard from "../components/ReviewCard";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from "@/app/config";
 
 type UserData = {
   userId?: number;
@@ -116,6 +113,20 @@ type UserData = {
   birthDate: string;
   createdAt?: string;
   profile_picture?: string;
+  bio?: string;
+};
+
+type FavoriteItem = {
+  favoriteId?: number;
+  addedAt?: string;
+  music?: {
+    musicId?: number;
+    name?: string;
+    coverImage?: string;
+    artist?: {
+      name?: string;
+    };
+  };
 };
 
 export default function Profile() {
@@ -126,16 +137,21 @@ export default function Profile() {
     "reviews" | "favorites" | "playlists"
   >("reviews");
   const [followingCount, setFollowingCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [playlistFavorites, setPlaylistFavorites] = useState<FavoriteItem[]>([]);
   const isOwnProfile = true; // Always true for the profile tab
 
   useEffect(() => {
     fetchUserData();
-    fetchUserReviews();
   }, []);
 
   useEffect(() => {
-    fetchUserReviews();
-  }, [userData]);
+    if (userData?.userId) {
+      fetchUserReviews(userData.userId);
+      fetchFollowCounts(userData.userId);
+      fetchPlaylistFavorites();
+    }
+  }, [userData?.userId]);
 
   const fetchUserData = async () => {
     try {
@@ -164,7 +180,7 @@ export default function Profile() {
     }
   };
 
-  const fetchUserReviews = async () => {
+  const fetchUserReviews = async (userId: number) => {
     try {
       const token = await SecureStore.getItemAsync("token");
 
@@ -173,14 +189,11 @@ export default function Profile() {
         return;
       }
 
-      const res = await fetch(
-        `${API_URL}/api/reviews/user/${userData?.userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`${API_URL}/api/reviews/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (!res.ok) {
         console.error("Failed to fetch user reviews");
@@ -194,14 +207,68 @@ export default function Profile() {
     }
   };
 
+  const fetchFollowCounts = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/counts/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const data = await res.json();
+      setFollowingCount(data.followingCount ?? 0);
+      setFollowersCount(data.followersCount ?? 0);
+    } catch (error) {
+      console.error("Error fetching follow counts:", error);
+    }
+  };
+
+  const fetchPlaylistFavorites = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/favorites/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setPlaylistFavorites([]);
+        return;
+      }
+
+      const data: FavoriteItem[] = await res.json();
+      setPlaylistFavorites(data);
+    } catch (error) {
+      console.error("Error fetching playlist favorites:", error);
+      setPlaylistFavorites([]);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchUserData(), fetchUserReviews()]);
+    await fetchUserData();
+    await fetchPlaylistFavorites();
     setRefreshing(false);
   };
 
   const handleEditProfile = () => {
-    router.push("/edit-profile" as any);
+    router.push("/edit-profile");
   };
 
   // const handleSettings = () => {
@@ -213,9 +280,22 @@ export default function Profile() {
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
 
-  const handleLogout = async () => {
-    await SecureStore.deleteItemAsync("token");
-    router.replace("/(auth)/login");
+  const handleOpenSettings = () => {
+    router.push("/settings");
+  };
+
+  const openFollowList = (mode: "following" | "followers") => {
+    if (!userData?.userId) {
+      return;
+    }
+
+    router.push({
+      pathname: "/follow-list",
+      params: {
+        userId: String(userData.userId),
+        mode,
+      },
+    });
   };
 
   if (!userData) {
@@ -261,7 +341,21 @@ export default function Profile() {
             </View>
           </View>
         </View>
-        <Text style={styles.username}>{userData.username}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            if (userData.userId) {
+              router.push({
+                pathname: "/user/[id]",
+                params: { id: String(userData.userId) },
+              });
+            }
+          }}
+        >
+          <Text style={styles.username}>{userData.username}</Text>
+        </TouchableOpacity>
+        {userData.bio ? (
+          <Text style={styles.bio}>{userData.bio}</Text>
+        ) : null}
         {userData.createdAt && (
           <View style={styles.joinedContainer}>
             <Ionicons name="calendar-outline" size={14} color="#88827a" />
@@ -283,10 +377,7 @@ export default function Profile() {
           <View style={styles.statDivider} />
           <TouchableOpacity
             style={styles.statItem}
-            onPress={() => {
-              // TODO: Navigate to following list or open modal
-              console.log("View following list");
-            }}
+            onPress={() => openFollowList("following")}
           >
             <Text style={styles.statNumber}>{followingCount}</Text>
             <Text style={styles.statLabel}>Following</Text>
@@ -294,10 +385,10 @@ export default function Profile() {
           <View style={styles.statDivider} />
           <TouchableOpacity
             style={styles.statItem}
-            onPress={() => setActiveTab("favorites")}
+            onPress={() => openFollowList("followers")}
           >
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Favorites</Text>
+            <Text style={styles.statNumber}>{followersCount}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
           </TouchableOpacity>
         </View>
 
@@ -313,9 +404,9 @@ export default function Profile() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.settingsButton}
-              onPress={handleLogout}
+              onPress={handleOpenSettings}
             >
-              <Ionicons name="exit-outline" size={20} color="#e5e3e1" />
+              <Ionicons name="settings-outline" size={20} color="#e5e3e1" />
             </TouchableOpacity>
           </View>
         )}
@@ -346,7 +437,7 @@ export default function Profile() {
               activeTab === "favorites" && styles.activeTabText,
             ]}
           >
-            Favorites
+            Placeholder
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -359,7 +450,7 @@ export default function Profile() {
               activeTab === "playlists" && styles.activeTabText,
             ]}
           >
-            Playlists
+            Favorites
           </Text>
         </TouchableOpacity>
       </View>
@@ -389,7 +480,30 @@ export default function Profile() {
         ) : activeTab === "favorites" ? (
           <Text style={styles.emptyText}>No favorites yet</Text>
         ) : (
-          <Text style={styles.emptyText}>No playlists yet</Text>
+          playlistFavorites.length > 0 ? (
+            playlistFavorites.map((favorite) => (
+              <View key={favorite.favoriteId ?? `${favorite.music?.musicId}-${favorite.addedAt}`} style={styles.playlistItem}>
+                <Image
+                  source={
+                    favorite.music?.coverImage
+                      ? { uri: favorite.music.coverImage }
+                      : require("../../assets/images/good-kid.jpeg")
+                  }
+                  style={styles.playlistCover}
+                />
+                <View style={styles.playlistMeta}>
+                  <Text style={styles.playlistTitle} numberOfLines={1}>
+                    {favorite.music?.name ?? "Unknown song"}
+                  </Text>
+                  <Text style={styles.playlistArtist} numberOfLines={1}>
+                    {favorite.music?.artist?.name ?? "Unknown artist"}
+                  </Text>
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>No favorite songs yet</Text>
+          )
         )}
       </View>
     </ScrollView>
@@ -505,6 +619,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
+  bio: {
+    color: "#88827a",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 12,
+    paddingHorizontal: 24,
+    lineHeight: 20,
+  },
   joinedContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -608,5 +730,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     paddingVertical: 40,
+  },
+  playlistItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0f0f0f",
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  playlistCover: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: "#1a1a1a",
+  },
+  playlistMeta: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  playlistTitle: {
+    color: "#e5e3e1",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  playlistArtist: {
+    color: "#88827a",
+    fontSize: 13,
+    marginTop: 2,
   },
 });

@@ -35,3 +35,4 @@ build/
 application-local.properties
 .env
 react-native-frontend/app/config.ts
+src/main/resources/application.properties

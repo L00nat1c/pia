@@ -11,6 +11,7 @@ import {
   PanResponder,
 } from "react-native";
 import { useEffect, useRef } from "react";
+import { formatActivityTimeLabel } from "@/app/utils/activityTime";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.75;
@@ -22,20 +23,23 @@ type Friend = {
   songTitle: string;
   songArtist: string;
   isListeningNow: boolean;
+  reviewDate?: string;
 };
 
 type FriendsDrawerProps = {
   visible: boolean;
   onClose: () => void;
   friends: Friend[];
-  onPressFriend: (friend: Friend) => void;
+  onPressFriendSong: (friend: Friend) => void;
+  onPressFriendProfile: (friend: Friend) => void;
 };
 
 export default function FriendsDrawer({
   visible,
   onClose,
   friends,
-  onPressFriend,
+  onPressFriendSong,
+  onPressFriendProfile,
 }: FriendsDrawerProps) {
   const translateX = useRef(new Animated.Value(DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -164,32 +168,40 @@ export default function FriendsDrawer({
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {friends.length > 0 ? (
             friends.map((friend) => (
-              <Pressable
-                key={friend.id}
-                style={styles.friendItem}
-                onPress={() => onPressFriend(friend)}
-              >
+              <View key={friend.id} style={styles.friendItem}>
                 <Image source={friend.profileImage} style={styles.profileImage} />
-                <View style={styles.friendInfo}>
+                <Pressable
+                  style={styles.friendInfo}
+                  onPress={() => onPressFriendProfile(friend)}
+                >
                   <Text style={styles.username}>{friend.username}</Text>
                   {friend.isListeningNow ? (
-                    <>
-                      <View style={styles.listeningIndicator}>
-                        <Ionicons name="musical-notes" size={10} color="#c2410c" />
-                        <Text style={styles.songTitle} numberOfLines={1}>
-                          {friend.songTitle}
-                        </Text>
-                      </View>
-                    </>
+                    <Text style={styles.profileHint}>View profile</Text>
                   ) : (
-                    <Text style={styles.offlineText}>Offline</Text>
+                    <Text style={styles.profileHint}>View profile</Text>
                   )}
-                </View>
-                <Ionicons name="chevron-forward" size={18} color="#3a3a3a" />
-              </Pressable>
+                </Pressable>
+                <Pressable
+                  style={styles.songSection}
+                  onPress={() => onPressFriendSong(friend)}
+                >
+                  <View style={styles.songMeta}>
+                    <View style={styles.listeningIndicator}>
+                      <Ionicons name="musical-notes" size={10} color="#c2410c" />
+                      <Text style={styles.songTitle} numberOfLines={1}>
+                        {friend.songTitle}
+                      </Text>
+                    </View>
+                    <Text style={styles.offlineText} numberOfLines={1}>
+                      {formatActivityTimeLabel(friend.reviewDate)}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color="#3a3a3a" />
+                </Pressable>
+              </View>
             ))
           ) : (
-            <Text style={styles.emptyText}>No friends online</Text>
+            <Text style={styles.emptyText}>No friend activity yet</Text>
           )}
         </ScrollView>
       </Animated.View>
@@ -278,18 +290,34 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   friendInfo: {
-    flex: 1,
+    minWidth: 0,
+    maxWidth: "42%",
     marginLeft: 12,
   },
   username: {
     color: "#e5e3e1",
     fontSize: 15,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  profileHint: {
+    color: "#88827a",
+    fontSize: 12,
   },
   listeningIndicator: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  songMeta: {
+    flex: 1,
+    minWidth: 0,
+  },
+  songSection: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginLeft: 12,
   },
   songTitle: {
     color: "#c2410c",
@@ -300,6 +328,7 @@ const styles = StyleSheet.create({
   offlineText: {
     color: "#88827a",
     fontSize: 12,
+    marginTop: 2,
   },
   emptyText: {
     color: "#88827a",

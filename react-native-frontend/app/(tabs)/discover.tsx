@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import TrendingCard from "../components/TrendingCard";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from "@/app/config";
 
 export default function Discover() {
   const [trendingData, setTrendingData] = useState(null);

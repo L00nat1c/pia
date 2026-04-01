@@ -8,6 +8,7 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
+import { formatActivityTimeLabel } from "@/app/utils/activityTime";
 
 type FriendDetailsModalProps = {
   visible: boolean;
@@ -18,8 +19,9 @@ type FriendDetailsModalProps = {
   songArtist: string;
   albumName?: string;
   albumImage?: any;
-  songTimestamp?: string; // e.g., "2:34 / 4:15"
+  songTimestamp?: string;
   isListeningNow: boolean;
+  reviewDate?: string;
   onPressProfile?: () => void;
 };
 
@@ -32,8 +34,9 @@ export default function FriendDetailsModal({
   songArtist,
   albumName = "Unknown Album",
   albumImage,
-  songTimestamp = "0:00 / 0:00",
+  songTimestamp,
   isListeningNow,
+  reviewDate,
   onPressProfile,
 }: FriendDetailsModalProps) {
   return (
@@ -65,7 +68,7 @@ export default function FriendDetailsModal({
                   <Text style={styles.listeningText}>Listening now</Text>
                 </View>
               ) : (
-                <Text style={styles.offlineText}>Recently played</Text>
+                <Text style={styles.offlineText}>{formatActivityTimeLabel(reviewDate)}</Text>
               )}
             </View>
             <Ionicons name="chevron-forward" size={20} color="#3a3a3a" />
@@ -81,21 +84,22 @@ export default function FriendDetailsModal({
           {/* Song details */}
           <View style={styles.songDetails}>
             <Text style={styles.songTitle} numberOfLines={2}>
-              {songTitle}
+              {songTitle || "No recent track"}
             </Text>
             <Text style={styles.songArtist} numberOfLines={1}>
-              {songArtist}
+              {songArtist || "No recent artist"}
             </Text>
             <Text style={styles.albumName} numberOfLines={1}>
               {albumName}
             </Text>
           </View>
 
-          {/* Progress/timestamp */}
-          <View style={styles.timestampSection}>
-            <Ionicons name="time-outline" size={16} color="#88827a" />
-            <Text style={styles.timestamp}>{songTimestamp}</Text>
-          </View>
+          {songTimestamp ? (
+            <View style={styles.timestampSection}>
+              <Ionicons name="time-outline" size={16} color="#88827a" />
+              <Text style={styles.timestamp}>{songTimestamp}</Text>
+            </View>
+          ) : null}
         </Pressable>
       </Pressable>
     </Modal>

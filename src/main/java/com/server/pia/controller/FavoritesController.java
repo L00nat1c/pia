@@ -30,6 +30,16 @@ public class FavoritesController {
         return favoritesService.addFavorite(userId, request.getMusicId());
     }
 
+    @DeleteMapping("/{musicId}")
+    public void removeFavorite(@PathVariable Long musicId) {
+        Long userId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        favoritesService.removeFavorite(userId, musicId);
+    }
+
     @GetMapping("/me")
     public List<Favorites> getUserFavorites() {
         Long userId = (Long) SecurityContextHolder
@@ -37,6 +47,11 @@ public class FavoritesController {
                 .getAuthentication()
                 .getPrincipal();
                 
+        return favoritesService.getFavoritesByUser(userId);
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<Favorites> getFavoritesForUser(@PathVariable Long userId) {
         return favoritesService.getFavoritesByUser(userId);
     }
 }

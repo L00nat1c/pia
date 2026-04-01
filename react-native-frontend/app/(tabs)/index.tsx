@@ -4,17 +4,41 @@ import { useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/build/Ionicons";
+import { API_URL, AUTHENTICATION_ENABLED } from "@/app/config";
 
 // This file uses the ReviewCard component to dynamically render list of reviews. Currently hardcoded, but will connect to DB.
 
 export default function Index() {
   useEffect(() => {
     const checkAuth = async () => {
+      if (!AUTHENTICATION_ENABLED) {
+        return;
+      }
+
       const token = await SecureStore.getItemAsync("token");
 
-      if (token) {
-        router.replace("/(tabs)");
-      } else {
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      try {
+        const normalizedApiUrl = API_URL.startsWith("http")
+          ? API_URL
+          : `http://${API_URL}`;
+
+        const res = await fetch(`${normalizedApiUrl}/api/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          await SecureStore.deleteItemAsync("token");
+          router.replace("/(auth)/login");
+        }
+      } catch {
+        await SecureStore.deleteItemAsync("token");
         router.replace("/(auth)/login");
       }
     };

@@ -6,12 +6,13 @@ import {
   Image,
   RefreshControl,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
-import { API_URL } from "../config";
+import { API_URL } from "@/app/config";
 import ReviewCard from "../components/ReviewCard";
 
 type UserData = {
@@ -21,72 +22,344 @@ type UserData = {
   birthDate: string;
   createdAt?: string;
   profile_picture?: string;
+  bio?: string;
+};
+
+type BackendReview = {
+  reviewId: number;
+  rating: number;
+  reviewText: string;
+  user?: {
+    userId?: number;
+    username?: string;
+    profile_picture?: string;
+  };
+  music?: {
+    name?: string;
+    coverImage?: string;
+    artist?: {
+      name?: string;
+    };
+  };
+};
+
+type ProfileReview = {
+  id: number;
+  profileImage: any;
+  username: string;
+  rating: number;
+  songImage: any;
+  songTitle: string;
+  songArtist: string;
+  reviewText: string;
+  likes: number;
+  comments: number;
+  repeats: number;
+};
+
+type FavoriteItem = {
+  favoriteId?: number;
+  addedAt?: string;
+  music?: {
+    musicId?: number;
+    name?: string;
+    coverImage?: string;
+    artist?: {
+      name?: string;
+    };
+  };
 };
 
 export default function UserProfile() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [userReviews, setUserReviews] = useState<any[]>([]);
+  const [userReviews, setUserReviews] = useState<ProfileReview[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"reviews" | "favorites" | "playlists">("reviews");
   const [loading, setLoading] = useState(true);
   const [followingCount, setFollowingCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [playlistFavorites, setPlaylistFavorites] = useState<FavoriteItem[]>([]);
+
+  const resolvedUserId = Array.isArray(id) ? id[0] : id;
+  const parsedUserId = resolvedUserId ? Number(resolvedUserId) : NaN;
 
   useEffect(() => {
-    fetchUserData();
-    fetchUserReviews();
-  }, [id]);
+    const loadProfile = async () => {
+      if (!Number.isFinite(parsedUserId)) {
+        setUserData(null);
+        setUserReviews([]);
+        setLoading(false);
+        return;
+      }
 
-  const fetchUserData = async () => {
+      setLoading(true);
+      const viewerId = await fetchCurrentUserId();
+      await Promise.all([
+        fetchUserData(parsedUserId),
+        fetchUserReviews(parsedUserId),
+        fetchFollowCounts(parsedUserId),
+        fetchPlaylistFavorites(parsedUserId),
+        viewerId ? fetchFollowStatus(parsedUserId) : Promise.resolve(),
+      ]);
+      setLoading(false);
+    };
+
+    loadProfile();
+  }, [parsedUserId]);
+
+  const fetchCurrentUserId = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
-      const res = await fetch(`${API_URL}/api/users/${id}`, {
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return null;
+      }
+
+      const res = await fetch(`${API_URL}/api/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return null;
+      }
+
+      const data: UserData = await res.json();
+      const idFromResponse = data.userId ?? null;
+      setCurrentUserId(idFromResponse);
+      return idFromResponse;
+    } catch (error) {
+      console.error("Error fetching current user id:", error);
+      return null;
+    }
+  };
+
+  const fetchUserData = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (res.ok) {
-        const data = await res.json();
-        setUserData(data);
+        const users = await res.json();
+        const matchedUser = users.find((user: UserData) => user.userId === userId);
+        setUserData(matchedUser ?? null);
+      } else {
+        setUserData(null);
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-    } finally {
-      setLoading(false);
+      setUserData(null);
     }
   };
 
-  const fetchUserReviews = async () => {
-    // TODO: Connect to backend API for user's reviews
-    // Mock data for now
-    const mockReviews = [
-      {
-        id: 1,
-        profileImage: require("../../assets/images/profile-image.jpg"),
-        username: userData?.username || "User",
-        rating: 5,
-        songImage: require("../../assets/images/good-kid.jpeg"),
-        songTitle: "good kid, m.A.A.d city",
-        songArtist: "Kendrick Lamar",
-        reviewText: "A cinematic journey through the streets of Compton",
-        likes: 24,
-        comments: 8,
-        repeats: 5,
-      },
-    ];
-    setUserReviews(mockReviews);
+  const fetchUserReviews = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/reviews/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setUserReviews([]);
+        return;
+      }
+
+      const data: BackendReview[] = await res.json();
+      const mappedReviews: ProfileReview[] = data.map((review) => ({
+        id: review.reviewId,
+        profileImage: review.user?.profile_picture
+          ? { uri: review.user.profile_picture }
+          : require("../../assets/images/profile-image.jpg"),
+        username: review.user?.username ?? userData?.username ?? "User",
+        rating: review.rating ?? 0,
+        songImage: review.music?.coverImage
+          ? { uri: review.music.coverImage }
+          : require("../../assets/images/good-kid.jpeg"),
+        songTitle: review.music?.name ?? "Unknown song",
+        songArtist: review.music?.artist?.name ?? "Unknown artist",
+        reviewText: review.reviewText ?? "",
+        likes: 0,
+        comments: 0,
+        repeats: 0,
+      }));
+
+      setUserReviews(mappedReviews);
+    } catch (error) {
+      console.error("Error fetching user reviews:", error);
+      setUserReviews([]);
+    }
+  };
+
+  const fetchFollowCounts = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/counts/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const data = await res.json();
+      setFollowingCount(data.followingCount ?? 0);
+      setFollowersCount(data.followersCount ?? 0);
+    } catch (error) {
+      console.error("Error fetching follow counts:", error);
+    }
+  };
+
+  const fetchFollowStatus = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/is-following/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setIsFollowing(false);
+        return;
+      }
+
+      const data = await res.json();
+      setIsFollowing(Boolean(data.following));
+    } catch (error) {
+      console.error("Error fetching follow status:", error);
+      setIsFollowing(false);
+    }
+  };
+
+  const fetchPlaylistFavorites = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/favorites/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setPlaylistFavorites([]);
+        return;
+      }
+
+      const data: FavoriteItem[] = await res.json();
+      setPlaylistFavorites(data);
+    } catch (error) {
+      console.error("Error fetching playlist favorites:", error);
+      setPlaylistFavorites([]);
+    }
+  };
+
+  const handleToggleFollow = async () => {
+    if (!Number.isFinite(parsedUserId) || !currentUserId || currentUserId === parsedUserId) {
+      return;
+    }
+
+    try {
+      setFollowLoading(true);
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const method = isFollowing ? "DELETE" : "POST";
+      const res = await fetch(`${API_URL}/api/friends/follow/${parsedUserId}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      setIsFollowing(!isFollowing);
+      await fetchFollowCounts(parsedUserId);
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+    } finally {
+      setFollowLoading(false);
+    }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchUserData(), fetchUserReviews()]);
+    if (Number.isFinite(parsedUserId)) {
+      await Promise.all([
+        fetchUserData(parsedUserId),
+        fetchUserReviews(parsedUserId),
+        fetchFollowCounts(parsedUserId),
+        fetchPlaylistFavorites(parsedUserId),
+        fetchFollowStatus(parsedUserId),
+      ]);
+    }
     setRefreshing(false);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  };
+
+  const openFollowList = (mode: "following" | "followers") => {
+    if (!userData?.userId) {
+      return;
+    }
+
+    router.push({
+      pathname: "/follow-list",
+      params: {
+        userId: String(userData.userId),
+        mode,
+      },
+    });
   };
 
   if (loading) {
@@ -107,6 +380,8 @@ export default function UserProfile() {
       </>
     );
   }
+
+  const isOwnProfile = currentUserId !== null && userData.userId === currentUserId;
 
   return (
     <>
@@ -146,6 +421,9 @@ export default function UserProfile() {
             </View>
           </View>
           <Text style={styles.username}>{userData.username}</Text>
+          {userData.bio ? (
+            <Text style={styles.bio}>{userData.bio}</Text>
+          ) : null}
           {userData.createdAt && (
             <View style={styles.joinedContainer}>
               <Ionicons name="calendar-outline" size={14} color="#88827a" />
@@ -167,10 +445,7 @@ export default function UserProfile() {
             <View style={styles.statDivider} />
             <TouchableOpacity
               style={styles.statItem}
-              onPress={() => {
-                // TODO: Navigate to following list or open modal
-                console.log("View following list");
-              }}
+              onPress={() => openFollowList("following")}
             >
               <Text style={styles.statNumber}>{followingCount}</Text>
               <Text style={styles.statLabel}>Following</Text>
@@ -178,12 +453,28 @@ export default function UserProfile() {
             <View style={styles.statDivider} />
             <TouchableOpacity
               style={styles.statItem}
-              onPress={() => setActiveTab("favorites")}
+              onPress={() => openFollowList("followers")}
             >
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Favorites</Text>
+              <Text style={styles.statNumber}>{followersCount}</Text>
+              <Text style={styles.statLabel}>Followers</Text>
             </TouchableOpacity>
           </View>
+
+          {!isOwnProfile ? (
+            <TouchableOpacity
+              style={[styles.followButton, isFollowing && styles.followingButton]}
+              onPress={handleToggleFollow}
+              disabled={followLoading}
+            >
+              {followLoading ? (
+                <ActivityIndicator color="#e5e3e1" />
+              ) : (
+                <Text style={styles.followButtonText}>
+                  {isFollowing ? "Following" : "Follow"}
+                </Text>
+              )}
+            </TouchableOpacity>
+          ) : null}
 
           {/* No Edit/Settings buttons for other users' profiles */}
         </View>
@@ -219,7 +510,7 @@ export default function UserProfile() {
                 activeTab === "favorites" && styles.activeTabText,
               ]}
             >
-              Favorites
+              Placeholder
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -235,7 +526,7 @@ export default function UserProfile() {
                 activeTab === "playlists" && styles.activeTabText,
               ]}
             >
-              Playlists
+              Favorites
             </Text>
           </TouchableOpacity>
         </View>
@@ -265,7 +556,30 @@ export default function UserProfile() {
           ) : activeTab === "favorites" ? (
             <Text style={styles.emptyText}>No favorites yet</Text>
           ) : (
-            <Text style={styles.emptyText}>No playlists yet</Text>
+            playlistFavorites.length > 0 ? (
+              playlistFavorites.map((favorite) => (
+                <View key={favorite.favoriteId ?? `${favorite.music?.musicId}-${favorite.addedAt}`} style={styles.playlistItem}>
+                  <Image
+                    source={
+                      favorite.music?.coverImage
+                        ? { uri: favorite.music.coverImage }
+                        : require("../../assets/images/good-kid.jpeg")
+                    }
+                    style={styles.playlistCover}
+                  />
+                  <View style={styles.playlistMeta}>
+                    <Text style={styles.playlistTitle} numberOfLines={1}>
+                      {favorite.music?.name ?? "Unknown song"}
+                    </Text>
+                    <Text style={styles.playlistArtist} numberOfLines={1}>
+                      {favorite.music?.artist?.name ?? "Unknown artist"}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.emptyText}>No favorite songs yet</Text>
+            )
           )}
         </View>
       </ScrollView>
@@ -397,6 +711,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
+  bio: {
+    color: "#88827a",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 12,
+    paddingHorizontal: 24,
+    lineHeight: 20,
+  },
   joinedContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -435,6 +757,26 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: "#2a2a2a",
   },
+  followButton: {
+    marginTop: 12,
+    width: "100%",
+    backgroundColor: "#c2410c",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#c2410c",
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  followingButton: {
+    backgroundColor: "#0f0f0f",
+    borderColor: "#2a2a2a",
+  },
+  followButtonText: {
+    color: "#e5e3e1",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   tabsContainer: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -466,5 +808,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     paddingVertical: 40,
+  },
+  playlistItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0f0f0f",
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  playlistCover: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: "#1a1a1a",
+  },
+  playlistMeta: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  playlistTitle: {
+    color: "#e5e3e1",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  playlistArtist: {
+    color: "#88827a",
+    fontSize: 13,
+    marginTop: 2,
   },
 });
