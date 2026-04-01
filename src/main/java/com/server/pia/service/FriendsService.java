@@ -2,6 +2,7 @@ package com.server.pia.service;
 
 import com.server.pia.dto.FriendActivityDTO;
 import com.server.pia.dto.LastFmRecentTrackDTO;
+import com.server.pia.dto.FollowUserDTO;
 import com.server.pia.entity.Friends;
 import com.server.pia.entity.Reviews;
 import com.server.pia.entity.User;
@@ -73,6 +74,24 @@ public class FriendsService {
         return friendsRepository.countByFriendUserUserId(userId);
     }
 
+    public List<FollowUserDTO> getFollowingUsers(Long userId) {
+        return friendsRepository.findByUserUserId(userId)
+                .stream()
+                .map(Friends::getFriendUser)
+                .filter(user -> user != null)
+                .map(this::toFollowUserDTO)
+                .toList();
+    }
+
+    public List<FollowUserDTO> getFollowerUsers(Long userId) {
+        return friendsRepository.findByFriendUserUserId(userId)
+                .stream()
+                .map(Friends::getUser)
+                .filter(user -> user != null)
+                .map(this::toFollowUserDTO)
+                .toList();
+    }
+
     public List<FriendActivityDTO> getFriendActivityForUser(Long userId) {
         return friendsRepository.findByUserUserId(userId)
                 .stream()
@@ -125,5 +144,14 @@ public class FriendsService {
         }
 
         return dto;
+    }
+
+    private FollowUserDTO toFollowUserDTO(User user) {
+        return new FollowUserDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getProfile_picture(),
+                user.getBio()
+        );
     }
 }

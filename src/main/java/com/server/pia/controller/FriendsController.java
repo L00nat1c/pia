@@ -2,6 +2,7 @@ package com.server.pia.controller;
 
 import com.server.pia.dto.FollowCountsDTO;
 import com.server.pia.dto.FollowStatusDTO;
+import com.server.pia.dto.FollowUserDTO;
 import com.server.pia.dto.FriendActivityDTO;
 import com.server.pia.service.FriendsService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,5 +73,15 @@ public class FriendsController {
                 friendsService.getFollowingCount(userId),
                 friendsService.getFollowersCount(userId)
         );
+    }
+
+    @GetMapping("/following/{userId}")
+    public List<FollowUserDTO> getFollowingUsers(@PathVariable Long userId) {
+        return friendsService.getFollowingUsers(userId);
+    }
+
+    @GetMapping("/followers/{userId}")
+    public List<FollowUserDTO> getFollowerUsers(@PathVariable Long userId) {
+        return friendsService.getFollowerUsers(userId);
     }
 }

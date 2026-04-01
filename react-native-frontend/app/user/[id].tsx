@@ -348,6 +348,20 @@ export default function UserProfile() {
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
 
+  const openFollowList = (mode: "following" | "followers") => {
+    if (!userData?.userId) {
+      return;
+    }
+
+    router.push({
+      pathname: "/follow-list",
+      params: {
+        userId: String(userData.userId),
+        mode,
+      },
+    });
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -431,10 +445,7 @@ export default function UserProfile() {
             <View style={styles.statDivider} />
             <TouchableOpacity
               style={styles.statItem}
-              onPress={() => {
-                // TODO: Navigate to following list or open modal
-                console.log("View following list");
-              }}
+              onPress={() => openFollowList("following")}
             >
               <Text style={styles.statNumber}>{followingCount}</Text>
               <Text style={styles.statLabel}>Following</Text>
@@ -442,7 +453,7 @@ export default function UserProfile() {
             <View style={styles.statDivider} />
             <TouchableOpacity
               style={styles.statItem}
-              onPress={() => setActiveTab("favorites")}
+              onPress={() => openFollowList("followers")}
             >
               <Text style={styles.statNumber}>{followersCount}</Text>
               <Text style={styles.statLabel}>Followers</Text>
