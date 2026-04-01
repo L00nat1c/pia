@@ -6,6 +6,7 @@ import {
   Image,
   RefreshControl,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams, Stack, router } from "expo-router";
@@ -64,6 +65,10 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState<"reviews" | "favorites" | "playlists">("reviews");
   const [loading, setLoading] = useState(true);
   const [followingCount, setFollowingCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const resolvedUserId = Array.isArray(id) ? id[0] : id;
   const parsedUserId = resolvedUserId ? Number(resolvedUserId) : NaN;
@@ -78,12 +83,47 @@ export default function UserProfile() {
       }
 
       setLoading(true);
-      await Promise.all([fetchUserData(parsedUserId), fetchUserReviews(parsedUserId)]);
+      const viewerId = await fetchCurrentUserId();
+      await Promise.all([
+        fetchUserData(parsedUserId),
+        fetchUserReviews(parsedUserId),
+        fetchFollowCounts(parsedUserId),
+        viewerId ? fetchFollowStatus(parsedUserId) : Promise.resolve(),
+      ]);
       setLoading(false);
     };
 
     loadProfile();
   }, [parsedUserId]);
+
+  const fetchCurrentUserId = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return null;
+      }
+
+      const res = await fetch(`${API_URL}/api/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return null;
+      }
+
+      const data: UserData = await res.json();
+      const idFromResponse = data.userId ?? null;
+      setCurrentUserId(idFromResponse);
+      return idFromResponse;
+    } catch (error) {
+      console.error("Error fetching current user id:", error);
+      return null;
+    }
+  };
 
   const fetchUserData = async (userId: number) => {
     try {
@@ -159,10 +199,103 @@ export default function UserProfile() {
     }
   };
 
+  const fetchFollowCounts = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/counts/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const data = await res.json();
+      setFollowingCount(data.followingCount ?? 0);
+      setFollowersCount(data.followersCount ?? 0);
+    } catch (error) {
+      console.error("Error fetching follow counts:", error);
+    }
+  };
+
+  const fetchFollowStatus = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/is-following/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setIsFollowing(false);
+        return;
+      }
+
+      const data = await res.json();
+      setIsFollowing(Boolean(data.following));
+    } catch (error) {
+      console.error("Error fetching follow status:", error);
+      setIsFollowing(false);
+    }
+  };
+
+  const handleToggleFollow = async () => {
+    if (!Number.isFinite(parsedUserId) || !currentUserId || currentUserId === parsedUserId) {
+      return;
+    }
+
+    try {
+      setFollowLoading(true);
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const method = isFollowing ? "DELETE" : "POST";
+      const res = await fetch(`${API_URL}/api/friends/follow/${parsedUserId}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      setIsFollowing(!isFollowing);
+      await fetchFollowCounts(parsedUserId);
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     if (Number.isFinite(parsedUserId)) {
-      await Promise.all([fetchUserData(parsedUserId), fetchUserReviews(parsedUserId)]);
+      await Promise.all([
+        fetchUserData(parsedUserId),
+        fetchUserReviews(parsedUserId),
+        fetchFollowCounts(parsedUserId),
+        fetchFollowStatus(parsedUserId),
+      ]);
     }
     setRefreshing(false);
   };
@@ -190,6 +323,8 @@ export default function UserProfile() {
       </>
     );
   }
+
+  const isOwnProfile = currentUserId !== null && userData.userId === currentUserId;
 
   return (
     <>
@@ -266,10 +401,26 @@ export default function UserProfile() {
               style={styles.statItem}
               onPress={() => setActiveTab("favorites")}
             >
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Favorites</Text>
+              <Text style={styles.statNumber}>{followersCount}</Text>
+              <Text style={styles.statLabel}>Followers</Text>
             </TouchableOpacity>
           </View>
+
+          {!isOwnProfile ? (
+            <TouchableOpacity
+              style={[styles.followButton, isFollowing && styles.followingButton]}
+              onPress={handleToggleFollow}
+              disabled={followLoading}
+            >
+              {followLoading ? (
+                <ActivityIndicator color="#e5e3e1" />
+              ) : (
+                <Text style={styles.followButtonText}>
+                  {isFollowing ? "Following" : "Follow"}
+                </Text>
+              )}
+            </TouchableOpacity>
+          ) : null}
 
           {/* No Edit/Settings buttons for other users' profiles */}
         </View>
@@ -528,6 +679,26 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     backgroundColor: "#2a2a2a",
+  },
+  followButton: {
+    marginTop: 12,
+    width: "100%",
+    backgroundColor: "#c2410c",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#c2410c",
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  followingButton: {
+    backgroundColor: "#0f0f0f",
+    borderColor: "#2a2a2a",
+  },
+  followButtonText: {
+    color: "#e5e3e1",
+    fontSize: 14,
+    fontWeight: "600",
   },
   tabsContainer: {
     flexDirection: "row",

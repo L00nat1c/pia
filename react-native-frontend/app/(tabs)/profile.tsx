@@ -124,6 +124,7 @@ export default function Profile() {
     "reviews" | "favorites" | "playlists"
   >("reviews");
   const [followingCount, setFollowingCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
   const isOwnProfile = true; // Always true for the profile tab
 
   useEffect(() => {
@@ -133,6 +134,7 @@ export default function Profile() {
   useEffect(() => {
     if (userData?.userId) {
       fetchUserReviews(userData.userId);
+      fetchFollowCounts(userData.userId);
     }
   }, [userData?.userId]);
 
@@ -187,6 +189,32 @@ export default function Profile() {
       setUserReviews(data);
     } catch (error) {
       console.error("Error fetching user reviews:", error);
+    }
+  };
+
+  const fetchFollowCounts = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/counts/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const data = await res.json();
+      setFollowingCount(data.followingCount ?? 0);
+      setFollowersCount(data.followersCount ?? 0);
+    } catch (error) {
+      console.error("Error fetching follow counts:", error);
     }
   };
 
@@ -305,8 +333,8 @@ export default function Profile() {
             style={styles.statItem}
             onPress={() => setActiveTab("favorites")}
           >
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Favorites</Text>
+            <Text style={styles.statNumber}>{followersCount}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
           </TouchableOpacity>
         </View>
 

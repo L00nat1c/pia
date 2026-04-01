@@ -4,7 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function CustomHeader() {
   const pathname = usePathname();
-  const showProfileButton = !pathname.startsWith("/(auth)");
+  const isAuthScreen = pathname === "/login" || pathname === "/register";
+  const showProfileButton = !isAuthScreen;
   const showBackButton = pathname.startsWith("/user/");
 
   const handleProfilePress = () => {

@@ -13,6 +13,13 @@ public class Friends {
 
     private LocalDate created_at;
 
+    @PrePersist
+    protected void onCreate() {
+        if (created_at == null) {
+            created_at = LocalDate.now();
+        }
+    }
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -27,7 +34,13 @@ public class Friends {
 
     public LocalDate getCreatedAt() { return created_at; }
 
+    public void setCreatedAt(LocalDate created_at) { this.created_at = created_at; }
+
     public User getUser() { return user; }
 
+    public void setUser(User user) { this.user = user; }
+
     public User getFriendUser() { return friendUser; }
+
+    public void setFriendUser(User friendUser) { this.friendUser = friendUser; }
 }

@@ -6,6 +6,7 @@ import com.server.pia.entity.Friends;
 import com.server.pia.entity.Reviews;
 import com.server.pia.entity.User;
 import com.server.pia.repository.FriendsRepository;
+import com.server.pia.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -17,11 +18,59 @@ public class FriendsService {
     private final FriendsRepository friendsRepository;
     private final ReviewsService reviewsService;
     private final LastFmService lastFmService;
+    private final UserRepository userRepository;
 
-    public FriendsService(FriendsRepository friendsRepository, ReviewsService reviewsService, LastFmService lastFmService) {
+    public FriendsService(FriendsRepository friendsRepository,
+                          ReviewsService reviewsService,
+                          LastFmService lastFmService,
+                          UserRepository userRepository) {
         this.friendsRepository = friendsRepository;
         this.reviewsService = reviewsService;
         this.lastFmService = lastFmService;
+        this.userRepository = userRepository;
+    }
+
+    public boolean isFollowing(Long userId, Long targetUserId) {
+        if (userId == null || targetUserId == null || userId.equals(targetUserId)) {
+            return false;
+        }
+
+        return friendsRepository.existsByUserUserIdAndFriendUserUserId(userId, targetUserId);
+    }
+
+    public void followUser(Long userId, Long targetUserId) {
+        if (userId == null || targetUserId == null || userId.equals(targetUserId)) {
+            return;
+        }
+
+        boolean alreadyFollowing = friendsRepository.existsByUserUserIdAndFriendUserUserId(userId, targetUserId);
+        if (alreadyFollowing) {
+            return;
+        }
+
+        User currentUser = userRepository.findById(userId).orElseThrow();
+        User targetUser = userRepository.findById(targetUserId).orElseThrow();
+
+        Friends follow = new Friends();
+        follow.setUser(currentUser);
+        follow.setFriendUser(targetUser);
+        friendsRepository.save(follow);
+    }
+
+    public void unfollowUser(Long userId, Long targetUserId) {
+        if (userId == null || targetUserId == null || userId.equals(targetUserId)) {
+            return;
+        }
+
+        friendsRepository.deleteByUserUserIdAndFriendUserUserId(userId, targetUserId);
+    }
+
+    public long getFollowingCount(Long userId) {
+        return friendsRepository.countByUserUserId(userId);
+    }
+
+    public long getFollowersCount(Long userId) {
+        return friendsRepository.countByFriendUserUserId(userId);
     }
 
     public List<FriendActivityDTO> getFriendActivityForUser(Long userId) {

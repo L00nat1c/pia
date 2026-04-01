@@ -8,6 +8,8 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
@@ -142,94 +144,106 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      {/* Inner header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#e5e3e1" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      {/* Profile picture */}
-      <TouchableOpacity style={styles.avatarContainer} onPress={handleChangePhoto} activeOpacity={0.8}>
-        {userData?.profile_picture ? (
-          <Image source={{ uri: userData.profile_picture }} style={styles.avatar} />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person" size={48} color="#88827a" />
-          </View>
-        )}
-        <View style={styles.cameraOverlay}>
-          <Ionicons name="camera" size={18} color="#fff" />
-        </View>
-      </TouchableOpacity>
-      <Text style={styles.changePhotoHint}>Change photo (coming soon)</Text>
-
-      {/* Form */}
-      <View style={styles.form}>
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={styles.input}
-            value={usernameInput}
-            onChangeText={(text) => {
-              setUsernameInput(text);
-              setStatusMessage("");
-            }}
-            placeholder="Enter username"
-            placeholderTextColor="#88827a"
-            autoCapitalize="none"
-            autoCorrect={false}
-            maxLength={30}
-          />
-          <Text style={styles.charCount}>{usernameInput.length}/30</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={20}
+    >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
+        {/* Inner header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#e5e3e1" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Bio</Text>
-          <TextInput
-            style={[styles.input, styles.bioInput]}
-            value={bioInput}
-            onChangeText={(text) => {
-              setBioInput(text);
-              setStatusMessage("");
-            }}
-            placeholder="Tell people a bit about yourself..."
-            placeholderTextColor="#88827a"
-            multiline
-            numberOfLines={4}
-            maxLength={300}
-            textAlignVertical="top"
-          />
-          <Text style={styles.charCount}>{bioInput.length}/300</Text>
-        </View>
-
-        <TouchableOpacity
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-          onPress={handleSave}
-          disabled={saving}
-        >
-          {saving ? (
-            <ActivityIndicator color="#e5e3e1" />
+        {/* Profile picture */}
+        <TouchableOpacity style={styles.avatarContainer} onPress={handleChangePhoto} activeOpacity={0.8}>
+          {userData?.profile_picture ? (
+            <Image source={{ uri: userData.profile_picture }} style={styles.avatar} />
           ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <View style={styles.avatarPlaceholder}>
+              <Ionicons name="person" size={48} color="#88827a" />
+            </View>
           )}
+          <View style={styles.cameraOverlay}>
+            <Ionicons name="camera" size={18} color="#fff" />
+          </View>
         </TouchableOpacity>
+        <Text style={styles.changePhotoHint}>Change photo (coming soon)</Text>
 
-        {statusMessage ? (
-          <Text
-            style={[
-              styles.statusText,
-              statusType === "success" ? styles.successText : styles.errorText,
-            ]}
+        {/* Form */}
+        <View style={styles.form}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={styles.input}
+              value={usernameInput}
+              onChangeText={(text) => {
+                setUsernameInput(text);
+                setStatusMessage("");
+              }}
+              placeholder="Enter username"
+              placeholderTextColor="#88827a"
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={30}
+              returnKeyType="next"
+            />
+            <Text style={styles.charCount}>{usernameInput.length}/30</Text>
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Bio</Text>
+            <TextInput
+              style={[styles.input, styles.bioInput]}
+              value={bioInput}
+              onChangeText={(text) => {
+                setBioInput(text);
+                setStatusMessage("");
+              }}
+              placeholder="Tell people a bit about yourself..."
+              placeholderTextColor="#88827a"
+              multiline
+              numberOfLines={4}
+              maxLength={300}
+              textAlignVertical="top"
+            />
+            <Text style={styles.charCount}>{bioInput.length}/300</Text>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+            onPress={handleSave}
+            disabled={saving}
           >
-            {statusMessage}
-          </Text>
-        ) : null}
-      </View>
-    </ScrollView>
+            {saving ? (
+              <ActivityIndicator color="#e5e3e1" />
+            ) : (
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            )}
+          </TouchableOpacity>
+
+          {statusMessage ? (
+            <Text
+              style={[
+                styles.statusText,
+                statusType === "success" ? styles.successText : styles.errorText,
+              ]}
+            >
+              {statusMessage}
+            </Text>
+          ) : null}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -245,7 +259,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#080808",
   },
   content: {
-    paddingBottom: 40,
+    flexGrow: 1,
+    paddingBottom: 120,
   },
   header: {
     flexDirection: "row",
