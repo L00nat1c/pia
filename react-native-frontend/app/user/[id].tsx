@@ -57,6 +57,19 @@ type ProfileReview = {
   repeats: number;
 };
 
+type FavoriteItem = {
+  favoriteId?: number;
+  addedAt?: string;
+  music?: {
+    musicId?: number;
+    name?: string;
+    coverImage?: string;
+    artist?: {
+      name?: string;
+    };
+  };
+};
+
 export default function UserProfile() {
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -69,6 +82,7 @@ export default function UserProfile() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [playlistFavorites, setPlaylistFavorites] = useState<FavoriteItem[]>([]);
 
   const resolvedUserId = Array.isArray(id) ? id[0] : id;
   const parsedUserId = resolvedUserId ? Number(resolvedUserId) : NaN;
@@ -88,6 +102,7 @@ export default function UserProfile() {
         fetchUserData(parsedUserId),
         fetchUserReviews(parsedUserId),
         fetchFollowCounts(parsedUserId),
+        fetchPlaylistFavorites(parsedUserId),
         viewerId ? fetchFollowStatus(parsedUserId) : Promise.resolve(),
       ]);
       setLoading(false);
@@ -252,6 +267,33 @@ export default function UserProfile() {
     }
   };
 
+  const fetchPlaylistFavorites = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/favorites/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setPlaylistFavorites([]);
+        return;
+      }
+
+      const data: FavoriteItem[] = await res.json();
+      setPlaylistFavorites(data);
+    } catch (error) {
+      console.error("Error fetching playlist favorites:", error);
+      setPlaylistFavorites([]);
+    }
+  };
+
   const handleToggleFollow = async () => {
     if (!Number.isFinite(parsedUserId) || !currentUserId || currentUserId === parsedUserId) {
       return;
@@ -294,6 +336,7 @@ export default function UserProfile() {
         fetchUserData(parsedUserId),
         fetchUserReviews(parsedUserId),
         fetchFollowCounts(parsedUserId),
+        fetchPlaylistFavorites(parsedUserId),
         fetchFollowStatus(parsedUserId),
       ]);
     }
@@ -456,7 +499,7 @@ export default function UserProfile() {
                 activeTab === "favorites" && styles.activeTabText,
               ]}
             >
-              Favorites
+              Placeholder
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -472,7 +515,7 @@ export default function UserProfile() {
                 activeTab === "playlists" && styles.activeTabText,
               ]}
             >
-              Playlists
+              Favorites
             </Text>
           </TouchableOpacity>
         </View>
@@ -502,7 +545,30 @@ export default function UserProfile() {
           ) : activeTab === "favorites" ? (
             <Text style={styles.emptyText}>No favorites yet</Text>
           ) : (
-            <Text style={styles.emptyText}>No playlists yet</Text>
+            playlistFavorites.length > 0 ? (
+              playlistFavorites.map((favorite) => (
+                <View key={favorite.favoriteId ?? `${favorite.music?.musicId}-${favorite.addedAt}`} style={styles.playlistItem}>
+                  <Image
+                    source={
+                      favorite.music?.coverImage
+                        ? { uri: favorite.music.coverImage }
+                        : require("../../assets/images/good-kid.jpeg")
+                    }
+                    style={styles.playlistCover}
+                  />
+                  <View style={styles.playlistMeta}>
+                    <Text style={styles.playlistTitle} numberOfLines={1}>
+                      {favorite.music?.name ?? "Unknown song"}
+                    </Text>
+                    <Text style={styles.playlistArtist} numberOfLines={1}>
+                      {favorite.music?.artist?.name ?? "Unknown artist"}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.emptyText}>No favorite songs yet</Text>
+            )
           )}
         </View>
       </ScrollView>
@@ -731,5 +797,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     paddingVertical: 40,
+  },
+  playlistItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0f0f0f",
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  playlistCover: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: "#1a1a1a",
+  },
+  playlistMeta: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  playlistTitle: {
+    color: "#e5e3e1",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  playlistArtist: {
+    color: "#88827a",
+    fontSize: 13,
+    marginTop: 2,
   },
 });

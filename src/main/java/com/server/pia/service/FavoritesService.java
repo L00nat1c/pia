@@ -49,7 +49,14 @@ public class FavoritesService {
     }
 
     public List<Favorites> getFavoritesByUser(Long userId) {
-        return favoritesRepository.findByUserUserId(userId);
+        return favoritesRepository.findByUserUserIdOrderByAddedAtDescFavoriteIdDesc(userId);
+    }
+
+    public void removeFavorite(Long userId, Long musicId) {
+        Favorites favorite = favoritesRepository.findByUserUserIdAndMusicMusicId(userId, musicId)
+                .orElseThrow(() -> new RuntimeException("Favorite not found"));
+
+        favoritesRepository.delete(favorite);
     }
 
     public List<Favorites> getAllFavorites() {
