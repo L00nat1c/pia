@@ -1,7 +1,10 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 
 export default function CustomHeader() {
+  const pathname = usePathname();
+  const showProfileButton = !pathname.startsWith("/(auth)");
+
   const handleProfilePress = () => {
     router.push("../(tabs)/profile");
   };
@@ -19,15 +22,19 @@ export default function CustomHeader() {
         </View>
         <Text style={styles.title}>Play It Again</Text>
       </View>
-      <TouchableOpacity
-        style={styles.profileButton}
-        onPress={handleProfilePress}
-      >
-        <Image
-          source={require("../../assets/images/profile-icon-9.png")}
-          style={{ width: 25, height: 25, borderRadius: 12.5 }}
-        />
-      </TouchableOpacity>
+      {showProfileButton ? (
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={handleProfilePress}
+        >
+          <Image
+            source={require("../../assets/images/profile-icon-9.png")}
+            style={{ width: 25, height: 25, borderRadius: 12.5 }}
+          />
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.profileButtonSpacer} />
+      )}
     </View>
   );
 }
@@ -53,6 +60,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   profileButton: {
+    width: 25,
+    height: 25,
+  },
+  profileButtonSpacer: {
     width: 25,
     height: 25,
   },

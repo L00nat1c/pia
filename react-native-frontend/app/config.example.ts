@@ -10,5 +10,3 @@
 export const AUTHENTICATION_ENABLED = true; // Change to false to bypass auth in development
 
 export const API_URL = "http://YOUR_LOCAL_IP:8080"; // Update with your backend URL
-
-//test

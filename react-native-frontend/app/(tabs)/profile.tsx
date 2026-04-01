@@ -3,8 +3,6 @@
 // import * as SecureStore from "expo-secure-store";
 // import { router } from "expo-router";
 
-// const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 // export default function Profile() {
 //   const [userData, setUserData] = useState(null);
 
@@ -106,8 +104,7 @@ import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ReviewCard from "../components/ReviewCard";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { API_URL } from "../config";
 
 type UserData = {
   userId?: number;
@@ -130,12 +127,13 @@ export default function Profile() {
 
   useEffect(() => {
     fetchUserData();
-    fetchUserReviews();
   }, []);
 
   useEffect(() => {
-    fetchUserReviews();
-  }, [userData]);
+    if (userData?.userId) {
+      fetchUserReviews(userData.userId);
+    }
+  }, [userData?.userId]);
 
   const fetchUserData = async () => {
     try {
@@ -164,7 +162,7 @@ export default function Profile() {
     }
   };
 
-  const fetchUserReviews = async () => {
+  const fetchUserReviews = async (userId: number) => {
     try {
       const token = await SecureStore.getItemAsync("token");
 
@@ -173,14 +171,11 @@ export default function Profile() {
         return;
       }
 
-      const res = await fetch(
-        `${API_URL}/api/reviews/user/${userData?.userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`${API_URL}/api/reviews/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (!res.ok) {
         console.error("Failed to fetch user reviews");
@@ -196,7 +191,7 @@ export default function Profile() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchUserData(), fetchUserReviews()]);
+    await fetchUserData();
     setRefreshing(false);
   };
 
@@ -213,9 +208,8 @@ export default function Profile() {
     return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
 
-  const handleLogout = async () => {
-    await SecureStore.deleteItemAsync("token");
-    router.replace("/(auth)/login");
+  const handleOpenSettings = () => {
+    router.push("/settings");
   };
 
   if (!userData) {
@@ -261,7 +255,18 @@ export default function Profile() {
             </View>
           </View>
         </View>
-        <Text style={styles.username}>{userData.username}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            if (userData.userId) {
+              router.push({
+                pathname: "/user/[id]",
+                params: { id: String(userData.userId) },
+              });
+            }
+          }}
+        >
+          <Text style={styles.username}>{userData.username}</Text>
+        </TouchableOpacity>
         {userData.createdAt && (
           <View style={styles.joinedContainer}>
             <Ionicons name="calendar-outline" size={14} color="#88827a" />
@@ -313,9 +318,9 @@ export default function Profile() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.settingsButton}
-              onPress={handleLogout}
+              onPress={handleOpenSettings}
             >
-              <Ionicons name="exit-outline" size={20} color="#e5e3e1" />
+              <Ionicons name="settings-outline" size={20} color="#e5e3e1" />
             </TouchableOpacity>
           </View>
         )}

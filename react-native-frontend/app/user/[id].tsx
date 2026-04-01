@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
-import { API_URL } from "../config";
+import { API_URL } from "@/app/config";
 import ReviewCard from "../components/ReviewCard";
 
 type UserData = {
@@ -23,64 +23,146 @@ type UserData = {
   profile_picture?: string;
 };
 
+type BackendReview = {
+  reviewId: number;
+  rating: number;
+  reviewText: string;
+  user?: {
+    userId?: number;
+    username?: string;
+    profile_picture?: string;
+  };
+  music?: {
+    name?: string;
+    coverImage?: string;
+    artist?: {
+      name?: string;
+    };
+  };
+};
+
+type ProfileReview = {
+  id: number;
+  profileImage: any;
+  username: string;
+  rating: number;
+  songImage: any;
+  songTitle: string;
+  songArtist: string;
+  reviewText: string;
+  likes: number;
+  comments: number;
+  repeats: number;
+};
+
 export default function UserProfile() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [userReviews, setUserReviews] = useState<any[]>([]);
+  const [userReviews, setUserReviews] = useState<ProfileReview[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"reviews" | "favorites" | "playlists">("reviews");
   const [loading, setLoading] = useState(true);
   const [followingCount, setFollowingCount] = useState(0);
 
-  useEffect(() => {
-    fetchUserData();
-    fetchUserReviews();
-  }, [id]);
+  const resolvedUserId = Array.isArray(id) ? id[0] : id;
+  const parsedUserId = resolvedUserId ? Number(resolvedUserId) : NaN;
 
-  const fetchUserData = async () => {
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!Number.isFinite(parsedUserId)) {
+        setUserData(null);
+        setUserReviews([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      await Promise.all([fetchUserData(parsedUserId), fetchUserReviews(parsedUserId)]);
+      setLoading(false);
+    };
+
+    loadProfile();
+  }, [parsedUserId]);
+
+  const fetchUserData = async (userId: number) => {
     try {
       const token = await SecureStore.getItemAsync("token");
-      const res = await fetch(`${API_URL}/api/users/${id}`, {
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (res.ok) {
-        const data = await res.json();
-        setUserData(data);
+        const users = await res.json();
+        const matchedUser = users.find((user: UserData) => user.userId === userId);
+        setUserData(matchedUser ?? null);
+      } else {
+        setUserData(null);
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-    } finally {
-      setLoading(false);
+      setUserData(null);
     }
   };
 
-  const fetchUserReviews = async () => {
-    // TODO: Connect to backend API for user's reviews
-    // Mock data for now
-    const mockReviews = [
-      {
-        id: 1,
-        profileImage: require("../../assets/images/profile-image.jpg"),
-        username: userData?.username || "User",
-        rating: 5,
-        songImage: require("../../assets/images/good-kid.jpeg"),
-        songTitle: "good kid, m.A.A.d city",
-        songArtist: "Kendrick Lamar",
-        reviewText: "A cinematic journey through the streets of Compton",
-        likes: 24,
-        comments: 8,
-        repeats: 5,
-      },
-    ];
-    setUserReviews(mockReviews);
+  const fetchUserReviews = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/reviews/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setUserReviews([]);
+        return;
+      }
+
+      const data: BackendReview[] = await res.json();
+      const mappedReviews: ProfileReview[] = data.map((review) => ({
+        id: review.reviewId,
+        profileImage: review.user?.profile_picture
+          ? { uri: review.user.profile_picture }
+          : require("../../assets/images/profile-image.jpg"),
+        username: review.user?.username ?? userData?.username ?? "User",
+        rating: review.rating ?? 0,
+        songImage: review.music?.coverImage
+          ? { uri: review.music.coverImage }
+          : require("../../assets/images/good-kid.jpeg"),
+        songTitle: review.music?.name ?? "Unknown song",
+        songArtist: review.music?.artist?.name ?? "Unknown artist",
+        reviewText: review.reviewText ?? "",
+        likes: 0,
+        comments: 0,
+        repeats: 0,
+      }));
+
+      setUserReviews(mappedReviews);
+    } catch (error) {
+      console.error("Error fetching user reviews:", error);
+      setUserReviews([]);
+    }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchUserData(), fetchUserReviews()]);
+    if (Number.isFinite(parsedUserId)) {
+      await Promise.all([fetchUserData(parsedUserId), fetchUserReviews(parsedUserId)]);
+    }
     setRefreshing(false);
   };
 
