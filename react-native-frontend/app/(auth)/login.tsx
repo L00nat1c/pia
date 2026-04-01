@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-import { API_URL } from "../config";
+import { API_URL } from "@/app/config";
 
 type LoginErrors = {
   email?: string;

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/build/Ionicons";
-import { API_URL, AUTHENTICATION_ENABLED } from "../config";
+import { API_URL, AUTHENTICATION_ENABLED } from "@/app/config";
 
 // This file uses the ReviewCard component to dynamically render list of reviews. Currently hardcoded, but will connect to DB.
 

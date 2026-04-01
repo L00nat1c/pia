@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
-import { API_URL } from "../config";
+import { API_URL } from "@/app/config";
 
 type RegisterErrors = {
   username?: string;

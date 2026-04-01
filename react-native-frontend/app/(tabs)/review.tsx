@@ -10,7 +10,7 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import Ionicons from "@expo/vector-icons/build/Ionicons";
-import { API_URL } from "../config";
+import { API_URL } from "@/app/config";
 
 export default function Review() {
   const { songId, title, artist, image } = useLocalSearchParams();

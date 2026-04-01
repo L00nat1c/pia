@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
-import { API_URL, AUTHENTICATION_ENABLED } from "./config";
+import { API_URL, AUTHENTICATION_ENABLED } from "@/app/config";
 
 type UserData = {
   userId?: number;
