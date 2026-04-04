@@ -264,6 +264,17 @@ public class MusicService {
         Music music = musicRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Track not found"));
 
+        // 🔥 Always refresh preview
+        var deezer = deezerService.searchTrack(
+                music.getArtist().getName(),
+                music.getName()
+        );
+
+        if (deezer != null && deezer.getPreviewUrl() != null) {
+            music.setDeezerPreviewUrl(deezer.getPreviewUrl());
+            musicRepository.save(music);
+        }
+
         return mapToDTO(music);
     }
 }
