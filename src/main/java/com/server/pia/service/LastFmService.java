@@ -1,15 +1,19 @@
 package com.server.pia.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import com.server.pia.dto.TrackInfoDTO;
 import com.server.pia.dto.LastFmRecentTrackDTO;
+import com.server.pia.dto.TrackInfoDTO;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class LastFmService {
@@ -30,25 +34,44 @@ public class LastFmService {
         return mapToDTO(response);
     }
 
-    public Optional<LastFmRecentTrackDTO> getMostRecentTrack(String username) {
-        if (username == null || username.isBlank()) {
-            return Optional.empty();
-        }
+    public List<String> getTopTags(int limit) {
+        int boundedLimit = Math.max(1, Math.min(limit, 50));
 
         String url = baseUrl +
-                "?method=user.getrecenttracks" +
+                "?method=tag.getTopTags" +
                 "&api_key=" + apiKey +
-                "&user=" + encode(username.trim()) +
-                "&limit=1" +
-                "&extended=0" +
                 "&format=json";
 
-        try {
-            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-            return mapRecentTrack(response);
-        } catch (Exception e) {
-            return Optional.empty();
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+
+        if (response == null || !response.containsKey("toptags")) {
+            return List.of();
         }
+
+        Map<String, Object> topTags = (Map<String, Object>) response.get("toptags");
+        Object tagObject = topTags.get("tag");
+
+        if (!(tagObject instanceof List<?> tagList)) {
+            return List.of();
+        }
+
+        List<String> tags = new ArrayList<>();
+        for (Object item : tagList) {
+            if (!(item instanceof Map<?, ?> tagMap)) {
+                continue;
+            }
+
+            Object name = tagMap.get("name");
+            if (name instanceof String tagName && !tagName.isBlank()) {
+                tags.add(tagName.trim());
+            }
+
+            if (tags.size() >= boundedLimit) {
+                break;
+            }
+        }
+
+        return tags;
     }
 
     private String buildUrl(String artist, String track) {
@@ -95,81 +118,73 @@ public class LastFmService {
     return new TrackInfoDTO(name, artist, playcount, tags);
 }
 
-    private Optional<LastFmRecentTrackDTO> mapRecentTrack(Map<String, Object> response) {
-        if (response == null) {
+    public Optional<LastFmRecentTrackDTO> getMostRecentTrack(String username) {
+        if (username == null || username.trim().isEmpty()) {
             return Optional.empty();
         }
 
-        Object recentTracksObj = response.get("recenttracks");
-        if (!(recentTracksObj instanceof Map<?, ?> recentTracksMap)) {
-            return Optional.empty();
-        }
+        try {
+            String url = baseUrl +
+                    "?method=user.getrecenttracks" +
+                    "&api_key=" + apiKey +
+                    "&user=" + encode(username) +
+                    "&limit=1" +
+                    "&format=json";
 
-        Object trackObj = recentTracksMap.get("track");
-        Map<String, Object> track = null;
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
-        if (trackObj instanceof List<?> trackList && !trackList.isEmpty()) {
-            Object firstTrack = trackList.get(0);
-            if (firstTrack instanceof Map<?, ?> firstTrackMap) {
-                track = (Map<String, Object>) firstTrackMap;
+            if (response == null || !response.containsKey("recenttracks")) {
+                return Optional.empty();
             }
-        } else if (trackObj instanceof Map<?, ?> trackMap) {
-            track = (Map<String, Object>) trackMap;
-        }
 
-        if (track == null) {
-            return Optional.empty();
-        }
+            Map<String, Object> recenttracks = (Map<String, Object>) response.get("recenttracks");
+            Object trackObj = recenttracks.get("track");
 
-        LastFmRecentTrackDTO dto = new LastFmRecentTrackDTO();
-        dto.setTrackName(getString(track.get("name")));
+            if (trackObj instanceof List<?> trackList && !trackList.isEmpty()) {
+                Map<String, Object> track = (Map<String, Object>) trackList.get(0);
 
-        Object artistObj = track.get("artist");
-        if (artistObj instanceof Map<?, ?> artistMap) {
-            dto.setArtistName(getString(artistMap.get("#text")));
-        }
+                LastFmRecentTrackDTO dto = new LastFmRecentTrackDTO();
+                dto.setTrackName((String) track.get("name"));
 
-        Object albumObj = track.get("album");
-        if (albumObj instanceof Map<?, ?> albumMap) {
-            dto.setAlbumName(getString(albumMap.get("#text")));
-        }
+                Map<String, Object> artist = (Map<String, Object>) track.get("artist");
+                if (artist != null) {
+                    dto.setArtistName((String) artist.get("#text"));
+                }
 
-        Object imageObj = track.get("image");
-        if (imageObj instanceof List<?> imageList) {
-            String bestImage = null;
-            for (Object imageItem : imageList) {
-                if (imageItem instanceof Map<?, ?> imageMap) {
-                    String imageUrl = getString(imageMap.get("#text"));
-                    if (imageUrl != null && !imageUrl.isBlank()) {
-                        bestImage = imageUrl;
+                Map<String, Object> album = (Map<String, Object>) track.get("album");
+                if (album != null) {
+                    dto.setAlbumName((String) album.get("#text"));
+                }
+
+                List<Map<String, Object>> images = (List<Map<String, Object>>) track.get("image");
+                if (images != null && !images.isEmpty()) {
+                    // Get the largest image (usually the last one)
+                    Map<String, Object> image = images.get(images.size() - 1);
+                    dto.setAlbumImage((String) image.get("#text"));
+                }
+
+                String dateStr = (String) track.get("date");
+                if (dateStr != null) {
+                    try {
+                        // Last.fm date format: "26 Dec 2023, 15:30"
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+                        LocalDateTime playedAt = LocalDateTime.parse(dateStr, formatter);
+                        dto.setPlayedAt(playedAt);
+                    } catch (Exception e) {
+                        // If parsing fails, set to now
+                        dto.setPlayedAt(LocalDateTime.now());
                     }
                 }
+
+                dto.setNowPlaying(track.containsKey("@attr"));
+
+                return Optional.of(dto);
             }
-            dto.setAlbumImage(bestImage);
+        } catch (Exception e) {
+            // Log error but don't throw
+            System.err.println("Error fetching recent track for user " + username + ": " + e.getMessage());
         }
 
-        Object dateObj = track.get("date");
-        if (dateObj instanceof Map<?, ?> dateMap) {
-            String uts = getString(dateMap.get("uts"));
-            if (uts != null && !uts.isBlank()) {
-                try {
-                    dto.setPlayedAt(Instant.ofEpochSecond(Long.parseLong(uts)).toString());
-                } catch (NumberFormatException ignored) {
-                    dto.setPlayedAt(null);
-                }
-            }
-        }
-
-        Object attrObj = track.get("@attr");
-        if (attrObj instanceof Map<?, ?> attrMap) {
-            String nowPlaying = getString(attrMap.get("nowplaying"));
-            dto.setNowPlaying("true".equalsIgnoreCase(nowPlaying));
-        }
-
-        return Optional.of(dto);
-    }
-
-    private String getString(Object value) {
-        return value == null ? null : String.valueOf(value);
+        return Optional.empty();
     }
 }

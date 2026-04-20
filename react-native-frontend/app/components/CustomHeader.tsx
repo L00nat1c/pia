@@ -9,7 +9,7 @@ export default function CustomHeader() {
   const showBackButton = pathname.startsWith("/user/");
 
   const handleProfilePress = () => {
-    router.push("../(tabs)/profile");
+    router.push("/(tabs)/profile");
   };
 
   const handleBackPress = () => {

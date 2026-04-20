@@ -11,7 +11,8 @@ import { useEffect, useMemo, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
-import { API_URL } from "@/app/config";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 type FollowMode = "following" | "followers";
 
@@ -23,12 +24,16 @@ type FollowUser = {
 };
 
 export default function FollowListScreen() {
-  const { userId, mode } = useLocalSearchParams<{ userId?: string; mode?: string }>();
+  const { userId, mode } = useLocalSearchParams<{
+    userId?: string;
+    mode?: string;
+  }>();
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<FollowUser[]>([]);
 
   const parsedUserId = Number(userId);
-  const resolvedMode: FollowMode = mode === "followers" ? "followers" : "following";
+  const resolvedMode: FollowMode =
+    mode === "followers" ? "followers" : "following";
 
   const title = useMemo(() => {
     const baseTitle = resolvedMode === "following" ? "Following" : "Followers";
@@ -87,7 +92,10 @@ export default function FollowListScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color="#e5e3e1" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
@@ -121,13 +129,17 @@ export default function FollowListScreen() {
                 source={
                   item.profilePicture
                     ? { uri: item.profilePicture }
-                    : require("../assets/images/profile-image.jpg")
+                    : require("../assets/images/profile-icon-9.png")
                 }
                 style={styles.avatar}
               />
               <View style={styles.userMeta}>
                 <Text style={styles.username}>{item.username}</Text>
-                {item.bio ? <Text style={styles.bio} numberOfLines={1}>{item.bio}</Text> : null}
+                {item.bio ? (
+                  <Text style={styles.bio} numberOfLines={1}>
+                    {item.bio}
+                  </Text>
+                ) : null}
               </View>
               <Ionicons name="chevron-forward" size={18} color="#3a3a3a" />
             </TouchableOpacity>

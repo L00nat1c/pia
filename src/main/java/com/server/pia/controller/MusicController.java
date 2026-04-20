@@ -51,10 +51,17 @@ public class MusicController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TrackResponseDTO>> searchMultipleTracks(
-            @RequestParam String q
-    ) {
-        return ResponseEntity.ok(musicService.searchMultipleTracks(q));
+    public String searchMusic(@RequestParam String q) {
+        return musicService.searchTracks(q);
+    }
+
+    @GetMapping("/{musicId}/deezer-preview")
+    public ResponseEntity<String> getDeezerPreview(@PathVariable Long musicId) {
+        String url = musicService.refreshDeezerPreview(musicId);
+        if (url == null || url.isBlank()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(url);
     }
 
     @GetMapping("/db/{id}")

@@ -84,4 +84,13 @@ public class FriendsController {
     public List<FollowUserDTO> getFollowerUsers(@PathVariable Long userId) {
         return friendsService.getFollowerUsers(userId);
     }
+
+    @GetMapping("/followers/me")
+    public List<FollowUserDTO> getCurrentUserFollowers() {
+        Long userId = (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        return friendsService.getFollowerUsers(userId);
+    }
 }

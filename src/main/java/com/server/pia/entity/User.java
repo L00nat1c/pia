@@ -2,6 +2,7 @@ package com.server.pia.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,11 +20,9 @@ public class User {
 
     private String profile_picture;
 
-    @Column(name = "lastfm_username")
-    private String lastfmUsername;
-
-    @Column(name = "bio", length = 300)
     private String bio;
+
+    private String lastfmUsername;
 
     private String email;
 
@@ -40,6 +39,11 @@ public class User {
 
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
+
+    @ElementCollection
+    @CollectionTable(name = "user_preferred_tags", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "tag")
+    private List<String> preferredTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
@@ -74,5 +78,15 @@ public class User {
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 
-    public LocalDate getCreatedAt() { return createdAt; }
+    public String getProfile_picture() { return profile_picture; }
+    public void setProfile_picture(String profile_picture) { this.profile_picture = profile_picture; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+
+    public String getLastfmUsername() { return lastfmUsername; }
+    public void setLastfmUsername(String lastfmUsername) { this.lastfmUsername = lastfmUsername; }
+
+    public List<String> getPreferredTags() { return preferredTags; }
+    public void setPreferredTags(List<String> preferredTags) { this.preferredTags = preferredTags; }
 }

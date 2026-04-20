@@ -30,17 +30,36 @@ public class Friends {
 
     public Friends() {}
 
-    public Long getFriendId() { return friend_id; }
+    // Getters and Setters
+    public Long getFriend_id() {
+        return friend_id;
+    }
 
-    public LocalDate getCreatedAt() { return created_at; }
+    public void setFriend_id(Long friend_id) {
+        this.friend_id = friend_id;
+    }
 
-    public void setCreatedAt(LocalDate created_at) { this.created_at = created_at; }
+    public LocalDate getCreated_at() {
+        return created_at;
+    }
 
-    public User getUser() { return user; }
+    public void setCreated_at(LocalDate created_at) {
+        this.created_at = created_at;
+    }
 
-    public void setUser(User user) { this.user = user; }
+    public User getUser() {
+        return user;
+    }
 
-    public User getFriendUser() { return friendUser; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public void setFriendUser(User friendUser) { this.friendUser = friendUser; }
+    public User getFriendUser() {
+        return friendUser;
+    }
+
+    public void setFriendUser(User friendUser) {
+        this.friendUser = friendUser;
+    }
 }

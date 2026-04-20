@@ -26,6 +26,15 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+type LoginErrors = {
+  email?: string;
+  password?: string;
+};
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +42,7 @@ export default function Login() {
   const [errors, setErrors] = useState<LoginErrors>({});
 
   const handleRegister = () => {
-    router.push("/register");
+    router.push("/(auth)/register");
   };
 
   const handleLogin = async () => {
@@ -84,7 +93,7 @@ export default function Login() {
       // save token
       await SecureStore.setItemAsync("token", token);
 
-      router.replace("../(tabs)");
+      router.replace("/(tabs)");
     } catch (err) {
       console.log(err);
 
@@ -94,7 +103,10 @@ export default function Login() {
           password: "Incorrect email or password.",
         });
       } else {
-        Alert.alert("Error", "Login failed. Check that your phone can reach the backend server.");
+        Alert.alert(
+          "Error",
+          "Login failed. Check that your phone can reach the backend server.",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -132,7 +144,9 @@ export default function Login() {
                 }}
                 value={email}
               />
-              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
             </View>
             <View style={styles.fieldGroup}>
               <TextInput
@@ -147,7 +161,9 @@ export default function Login() {
                 }}
                 value={password}
               />
-              {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+              {errors.password ? (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              ) : null}
             </View>
 
             <View style={styles.buttonContainer}>
@@ -162,7 +178,10 @@ export default function Login() {
                   <Text style={styles.buttonText}>Login</Text>
                 )}
               </TouchableOpacity>
-              <TouchableOpacity style={styles.regButton} onPress={handleRegister}>
+              <TouchableOpacity
+                style={styles.regButton}
+                onPress={handleRegister}
+              >
                 <Text style={styles.buttonText}>Register</Text>
               </TouchableOpacity>
             </View>

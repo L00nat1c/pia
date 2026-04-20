@@ -1,7 +1,6 @@
 package com.server.pia.dto;
 
 public class FriendActivityDTO {
-
     private Long userId;
     private String username;
     private String profilePicture;
@@ -16,36 +15,91 @@ public class FriendActivityDTO {
 
     public FriendActivityDTO() {}
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-    public String getProfilePicture() { return profilePicture; }
-    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+    public String getUsername() {
+        return username;
+    }
 
-    public String getSongTitle() { return songTitle; }
-    public void setSongTitle(String songTitle) { this.songTitle = songTitle; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public String getSongArtist() { return songArtist; }
-    public void setSongArtist(String songArtist) { this.songArtist = songArtist; }
+    public String getProfilePicture() {
+        return profilePicture;
+    }
 
-    public String getAlbumName() { return albumName; }
-    public void setAlbumName(String albumName) { this.albumName = albumName; }
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 
-    public String getAlbumImage() { return albumImage; }
-    public void setAlbumImage(String albumImage) { this.albumImage = albumImage; }
+    public String getSongTitle() {
+        return songTitle;
+    }
 
-    public String getReviewDate() { return reviewDate; }
-    public void setReviewDate(String reviewDate) { this.reviewDate = reviewDate; }
+    public void setSongTitle(String songTitle) {
+        this.songTitle = songTitle;
+    }
 
-    public Boolean getIsListeningNow() { return isListeningNow; }
-    public void setIsListeningNow(Boolean isListeningNow) { this.isListeningNow = isListeningNow; }
+    public String getSongArtist() {
+        return songArtist;
+    }
 
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
+    public void setSongArtist(String songArtist) {
+        this.songArtist = songArtist;
+    }
 
-    public String getReviewText() { return reviewText; }
-    public void setReviewText(String reviewText) { this.reviewText = reviewText; }
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
+
+    public String getAlbumImage() {
+        return albumImage;
+    }
+
+    public void setAlbumImage(String albumImage) {
+        this.albumImage = albumImage;
+    }
+
+    public String getReviewDate() {
+        return reviewDate;
+    }
+
+    public void setReviewDate(String reviewDate) {
+        this.reviewDate = reviewDate;
+    }
+
+    public Boolean getIsListeningNow() {
+        return isListeningNow;
+    }
+
+    public void setIsListeningNow(Boolean isListeningNow) {
+        this.isListeningNow = isListeningNow;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public String getReviewText() {
+        return reviewText;
+    }
+
+    public void setReviewText(String reviewText) {
+        this.reviewText = reviewText;
+    }
 }

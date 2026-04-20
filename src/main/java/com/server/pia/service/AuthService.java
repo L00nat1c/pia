@@ -44,6 +44,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setBirthDate(request.getBirthDate());
 
+        if (request.getPreferredTags() != null && !request.getPreferredTags().isEmpty()) {
+            user.setPreferredTags(request.getPreferredTags());
+        }
+
         return userRepository.save(user);
     }
 }

@@ -6,6 +6,8 @@ import com.server.pia.dto.TrackInfoDTO;
 import com.server.pia.service.LastFmService;
 import com.server.pia.dto.TrackRequestDTO;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/lastfm")
 public class LastFmController {
@@ -27,4 +29,11 @@ public class LastFmController {
                 )
         );
     }
+
+        @GetMapping("/top-tags")
+        public ResponseEntity<List<String>> getTopTags(
+            @RequestParam(defaultValue = "24") int limit
+        ) {
+        return ResponseEntity.ok(lastFmService.getTopTags(limit));
+        }
 }

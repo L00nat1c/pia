@@ -1,6 +1,7 @@
 package com.server.pia.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class RegisterRequest {
 
@@ -39,5 +40,15 @@ public class RegisterRequest {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    private List<String> preferredTags;
+
+    public List<String> getPreferredTags() {
+        return preferredTags;
+    }
+
+    public void setPreferredTags(List<String> preferredTags) {
+        this.preferredTags = preferredTags;
     }
 }

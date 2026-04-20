@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class FriendsService {
@@ -122,7 +123,7 @@ public class FriendsService {
             dto.setSongArtist(recentTrack.getArtistName());
             dto.setAlbumName(recentTrack.getAlbumName());
             dto.setAlbumImage(recentTrack.getAlbumImage());
-            dto.setReviewDate(recentTrack.getPlayedAt());
+            dto.setReviewDate(recentTrack.getPlayedAt() != null ? recentTrack.getPlayedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
             dto.setIsListeningNow(recentTrack.isNowPlaying());
             dto.setRating(null);
             dto.setReviewText(null);

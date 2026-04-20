@@ -11,7 +11,7 @@ import {
   PanResponder,
 } from "react-native";
 import { useEffect, useRef } from "react";
-import { formatActivityTimeLabel } from "@/app/utils/activityTime";
+import { formatActivityTimeLabel } from "../utils/activityTime";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.75;
@@ -63,7 +63,7 @@ export default function FriendsDrawer({
           openDrawer();
         }
       },
-    })
+    }),
   ).current;
 
   useEffect(() => {
@@ -116,12 +116,7 @@ export default function FriendsDrawer({
   return (
     <View style={styles.container} pointerEvents={visible ? "auto" : "none"}>
       {/* Overlay - tapping closes drawer */}
-      <Animated.View 
-        style={[
-          styles.overlay, 
-          { opacity: overlayOpacity }
-        ]}
-      >
+      <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
         <Pressable style={styles.overlayPressable} onPress={closeDrawer} />
       </Animated.View>
 
@@ -165,11 +160,17 @@ export default function FriendsDrawer({
         </View>
 
         {/* Friends list */}
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           {friends.length > 0 ? (
             friends.map((friend) => (
               <View key={friend.id} style={styles.friendItem}>
-                <Image source={friend.profileImage} style={styles.profileImage} />
+                <Image
+                  source={friend.profileImage}
+                  style={styles.profileImage}
+                />
                 <Pressable
                   style={styles.friendInfo}
                   onPress={() => onPressFriendProfile(friend)}
@@ -187,7 +188,11 @@ export default function FriendsDrawer({
                 >
                   <View style={styles.songMeta}>
                     <View style={styles.listeningIndicator}>
-                      <Ionicons name="musical-notes" size={10} color="#c2410c" />
+                      <Ionicons
+                        name="musical-notes"
+                        size={10}
+                        color="#c2410c"
+                      />
                       <Text style={styles.songTitle} numberOfLines={1}>
                         {friend.songTitle}
                       </Text>

@@ -30,7 +30,7 @@ public class Music {
 
     private Integer review_count;
 
-    @Column(name = "spotify_id")
+    @Column(name = "spotify_id", unique = true)
     private String spotifyId;
 
     @Column(name = "created_at")
