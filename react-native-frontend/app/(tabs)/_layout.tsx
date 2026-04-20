@@ -1,9 +1,32 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
 
 // This file enables a sticky footer and that persists for navigation. The routes are the other .tsx file in this directory.
 
 export default function TabLayout() {
+  const [authResolved, setAuthResolved] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const resolveAuth = async () => {
+      const storedToken = await SecureStore.getItemAsync("token");
+      setToken(storedToken);
+      setAuthResolved(true);
+    };
+
+    resolveAuth();
+  }, []);
+
+  if (!authResolved) {
+    return null;
+  }
+
+  if (!token) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
   return (
     <Tabs
       screenOptions={{

@@ -174,11 +174,57 @@ public class MusicService {
         return mapToDTO(saved);
     }
 
+    public String refreshDeezerPreview(Long musicId) {
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new RuntimeException("Music not found: " + musicId));
+
+        String existing = music.getDeezerPreviewUrl();
+
+        // If we have a URL, check whether its hdnea signed token is still valid
+        if (existing != null && !existing.isBlank() && !isDeezerUrlExpired(existing)) {
+            return existing;
+        }
+
+        // Missing or expired — re-fetch from Deezer
+        String artistName = music.getArtist() != null ? music.getArtist().getName() : "";
+        String trackName  = music.getName();
+
+        try {
+            var deezer = deezerService.searchTrack(artistName, trackName);
+            if (deezer != null && deezer.getPreviewUrl() != null) {
+                music.setDeezerPreviewUrl(deezer.getPreviewUrl());
+                musicRepository.save(music);
+                return deezer.getPreviewUrl();
+            }
+        } catch (Exception e) {
+            // Deezer lookup failed — return whatever we had
+        }
+
+        return existing;
+    }
+
+    private boolean isDeezerUrlExpired(String url) {
+        // Signed URLs look like: ...?hdnea=exp=1775080991~acl=...
+        // Parse the exp value and compare to current time
+        try {
+            int expIndex = url.indexOf("exp=");
+            if (expIndex == -1) return false; // no token, assume permanent
+            int start = expIndex + 4;
+            int end = url.indexOf('~', start);
+            String expStr = end == -1 ? url.substring(start) : url.substring(start, end);
+            long expEpoch = Long.parseLong(expStr);
+            return System.currentTimeMillis() / 1000 >= expEpoch;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private TrackResponseDTO mapToDTO(Music music) {
         TrackResponseDTO dto = new TrackResponseDTO();
 
         dto.setId(music.getMusicId());
         dto.setName(music.getName());
+        dto.setMusicId(music.getMusicId());
 
         if (music.getArtist() != null) {
             dto.setArtist(music.getArtist().getName());
@@ -257,5 +303,9 @@ public class MusicService {
         }
 
         return results;
+    }
+
+    public String searchTracks(String query) {
+        return spotifyService.searchMultipleTracks(query);
     }
 }

@@ -28,6 +28,12 @@ public class Reviews {
     @Column(name = "review_date")
     private LocalDate reviewDate;
 
+    @Column(name = "likes_count", nullable = false, columnDefinition = "int default 0")
+    private Integer likesCount = 0;
+
+    @Column(name = "reposts_count", nullable = false, columnDefinition = "int default 0")
+    private Integer repostsCount = 0;
+
     @PrePersist
     protected void onCreate() {
         reviewDate = LocalDate.now();
@@ -50,4 +56,10 @@ public class Reviews {
     public void setReviewText(String reviewText) { this.reviewText = reviewText; }
 
     public LocalDate getReviewDate() { return reviewDate; }
+
+    public Integer getLikesCount() { return likesCount; }
+    public void setLikesCount(Integer likesCount) { this.likesCount = likesCount; }
+
+    public Integer getRepostsCount() { return repostsCount; }
+    public void setRepostsCount(Integer repostsCount) { this.repostsCount = repostsCount; }
 }

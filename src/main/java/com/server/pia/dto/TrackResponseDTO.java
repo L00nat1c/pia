@@ -8,6 +8,8 @@ public class TrackResponseDTO {
     private String name;
     private String artist;
 
+    private Long musicId;
+
     private String coverImage;
     private String previewUrl;
 
@@ -45,4 +47,12 @@ public class TrackResponseDTO {
 
     public String getGenre() { return genre; }
     public void setGenre(String genre) { this.genre = genre; }
+
+    public Long getMusicId() {
+    return musicId;
+    }
+
+    public void setMusicId(Long musicId) {
+        this.musicId = musicId;
+    }
 }

@@ -3,7 +3,7 @@ import { router } from "expo-router";
 
 export default function CustomHeader() {
   const handleProfilePress = () => {
-    router.push("../(tabs)/profile");
+    router.push("/(tabs)/profile");
   };
 
   return (

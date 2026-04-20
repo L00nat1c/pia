@@ -18,7 +18,12 @@ export default function Review() {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
 
-  const handleSubmitReview = async (songId: string, rating: number) => {
+  const handleSubmitReview = async (rating: number) => {
+    if (!rating || !reviewText.trim()) {
+      alert("Please add a rating and review");
+      return;
+    }
+
     try {
       const token = await SecureStore.getItemAsync("token");
 
@@ -34,7 +39,8 @@ export default function Review() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          spotifyId: songId,
+          artist: artist,
+          track: title,
           rating,
           reviewText: reviewText,
         }),
@@ -86,7 +92,7 @@ export default function Review() {
       />
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() => handleSubmitReview(songId as string, rating)}
+        onPress={() => handleSubmitReview(rating)}
       >
         <Text style={styles.submitButtonText}>Submit Review</Text>
       </TouchableOpacity>

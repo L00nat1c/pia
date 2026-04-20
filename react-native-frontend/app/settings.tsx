@@ -13,7 +13,8 @@ import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
-import { API_URL, AUTHENTICATION_ENABLED } from "./config";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 type UserData = {
   userId?: number;
@@ -37,17 +38,17 @@ export default function Settings() {
 
   const fetchUserData = async () => {
     try {
-      if (!AUTHENTICATION_ENABLED) {
-        // Use mock data in development mode
-        setUserData({
-          userId: 1,
-          username: "DevUser",
-          email: "dev@example.com",
-          birthDate: "1990-01-01",
-        });
-        setLoading(false);
-        return;
-      }
+      // if (!AUTHENTICATION_ENABLED) {
+      //   // Use mock data in development mode
+      //   setUserData({
+      //     userId: 1,
+      //     username: "DevUser",
+      //     email: "dev@example.com",
+      //     birthDate: "1990-01-01",
+      //   });
+      //   setLoading(false);
+      //   return;
+      // }
 
       const token = await SecureStore.getItemAsync("token");
 
@@ -95,18 +96,18 @@ export default function Settings() {
     setChangingPassword(true);
 
     try {
-      if (!AUTHENTICATION_ENABLED) {
-        // Mock success in development mode
-        setTimeout(() => {
-          Alert.alert("Success", "Password changed successfully");
-          setPasswordModalVisible(false);
-          setCurrentPassword("");
-          setNewPassword("");
-          setConfirmPassword("");
-          setChangingPassword(false);
-        }, 1000);
-        return;
-      }
+      // if (!AUTHENTICATION_ENABLED) {
+      //   // Mock success in development mode
+      //   setTimeout(() => {
+      //     Alert.alert("Success", "Password changed successfully");
+      //     setPasswordModalVisible(false);
+      //     setCurrentPassword("");
+      //     setNewPassword("");
+      //     setConfirmPassword("");
+      //     setChangingPassword(false);
+      //   }, 1000);
+      //   return;
+      // }
 
       const token = await SecureStore.getItemAsync("token");
 
@@ -163,7 +164,7 @@ export default function Settings() {
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -181,11 +182,14 @@ export default function Settings() {
           style: "destructive",
           onPress: async () => {
             // TODO: Implement account deletion API call
-            Alert.alert("Coming Soon", "Account deletion will be available soon");
+            Alert.alert(
+              "Coming Soon",
+              "Account deletion will be available soon",
+            );
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -215,7 +219,7 @@ export default function Settings() {
         {/* Account Info Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Information</Text>
-          
+
           <View style={styles.infoItem}>
             <View style={styles.infoLabel}>
               <Ionicons name="person-outline" size={20} color="#88827a" />
@@ -267,10 +271,16 @@ export default function Settings() {
 
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => Alert.alert("Coming Soon", "Notification settings coming soon")}
+            onPress={() =>
+              Alert.alert("Coming Soon", "Notification settings coming soon")
+            }
           >
             <View style={styles.actionButtonLeft}>
-              <Ionicons name="notifications-outline" size={20} color="#e5e3e1" />
+              <Ionicons
+                name="notifications-outline"
+                size={20}
+                color="#e5e3e1"
+              />
               <Text style={styles.actionButtonText}>Notifications</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#88827a" />
@@ -278,7 +288,9 @@ export default function Settings() {
 
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => Alert.alert("Coming Soon", "Privacy settings coming soon")}
+            onPress={() =>
+              Alert.alert("Coming Soon", "Privacy settings coming soon")
+            }
           >
             <View style={styles.actionButtonLeft}>
               <Ionicons name="lock-closed-outline" size={20} color="#e5e3e1" />

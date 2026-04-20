@@ -5,6 +5,8 @@ public class ReviewsRequest {
     private Long musicId;
     private Integer rating;
     private String reviewText;
+    private String artist;
+    private String track;
 
     public Long getMusicId() {
         return musicId;
@@ -28,5 +30,21 @@ public class ReviewsRequest {
 
     public void setReviewText(String reviewText) {
         this.reviewText = reviewText;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getTrack() {
+        return track;
+    }
+
+    public void setTrack(String track) {
+        this.track = track;
     }
 }

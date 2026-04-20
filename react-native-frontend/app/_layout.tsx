@@ -5,14 +5,14 @@ import CustomHeader from "./components/CustomHeader";
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{
-        // headerTitle: "Play It Again",
-        // headerTitleAlign: "left",
-        // headerStyle: { backgroundColor: "#080808" },
-        // headerTintColor: "#fff",
-        header: () => <CustomHeader />, // Use the custom header
-      }}
-    />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: true,
+          header: () => <CustomHeader />,
+        }}
+      />
+    </Stack>
   );
 }
