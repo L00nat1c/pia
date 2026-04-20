@@ -5,6 +5,19 @@ import { useEffect, useState } from "react";
 
 // This file enables a sticky footer and that persists for navigation. The routes are the other .tsx file in this directory.
 
+function isValidStoredToken(token: string | null) {
+  if (!token) {
+    return false;
+  }
+
+  const normalized = token.replace(/^"+|"+$/g, "").trim();
+  if (!normalized) {
+    return false;
+  }
+
+  return normalized !== "null" && normalized !== "undefined";
+}
+
 export default function TabLayout() {
   const [authResolved, setAuthResolved] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -12,7 +25,7 @@ export default function TabLayout() {
   useEffect(() => {
     const resolveAuth = async () => {
       const storedToken = await SecureStore.getItemAsync("token");
-      setToken(storedToken);
+      setToken(isValidStoredToken(storedToken) ? storedToken : null);
       setAuthResolved(true);
     };
 

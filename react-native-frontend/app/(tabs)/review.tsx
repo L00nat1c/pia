@@ -10,7 +10,8 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import Ionicons from "@expo/vector-icons/build/Ionicons";
-import { API_URL } from "@/app/config";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Review() {
   const { songId, title, artist, image } = useLocalSearchParams();
@@ -50,7 +51,7 @@ export default function Review() {
         return;
       }
 
-      router.push("/(tabs)/profile");
+      router.push("/profile");
     } catch (error) {
       console.error("Error submitting review:", error);
     }

@@ -78,15 +78,6 @@ public class User {
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 
-    public String getProfile_picture() { return profile_picture; }
-    public void setProfile_picture(String profile_picture) { this.profile_picture = profile_picture; }
-
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
-
-    public String getLastfmUsername() { return lastfmUsername; }
-    public void setLastfmUsername(String lastfmUsername) { this.lastfmUsername = lastfmUsername; }
-
     public List<String> getPreferredTags() { return preferredTags; }
     public void setPreferredTags(List<String> preferredTags) { this.preferredTags = preferredTags; }
 }

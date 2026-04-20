@@ -15,7 +15,8 @@ import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
-import { API_URL, AUTHENTICATION_ENABLED } from "@/app/config";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 type UserData = {
   userId?: number;
@@ -39,11 +40,6 @@ export default function EditProfileScreen() {
 
   const loadProfile = async () => {
     try {
-      if (!AUTHENTICATION_ENABLED) {
-        setLoading(false);
-        return;
-      }
-
       const token = await SecureStore.getItemAsync("token");
       if (!token) {
         router.replace("/(auth)/login");
@@ -81,12 +77,6 @@ export default function EditProfileScreen() {
       setSaving(true);
       setStatusMessage("");
       setStatusType("");
-
-      if (!AUTHENTICATION_ENABLED) {
-        setStatusMessage("Profile updated.");
-        setStatusType("success");
-        return;
-      }
 
       const token = await SecureStore.getItemAsync("token");
       if (!token) {
@@ -128,11 +118,9 @@ export default function EditProfileScreen() {
   };
 
   const handleChangePhoto = () => {
-    Alert.alert(
-      "Change Photo",
-      "Image upload is coming soon. Stay tuned!",
-      [{ text: "OK" }]
-    );
+    Alert.alert("Change Photo", "Image upload is coming soon. Stay tuned!", [
+      { text: "OK" },
+    ]);
   };
 
   if (loading) {
@@ -157,7 +145,10 @@ export default function EditProfileScreen() {
       >
         {/* Inner header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
             <Ionicons name="arrow-back" size={24} color="#e5e3e1" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Profile</Text>
@@ -165,9 +156,16 @@ export default function EditProfileScreen() {
         </View>
 
         {/* Profile picture */}
-        <TouchableOpacity style={styles.avatarContainer} onPress={handleChangePhoto} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.avatarContainer}
+          onPress={handleChangePhoto}
+          activeOpacity={0.8}
+        >
           {userData?.profile_picture ? (
-            <Image source={{ uri: userData.profile_picture }} style={styles.avatar} />
+            <Image
+              source={{ uri: userData.profile_picture }}
+              style={styles.avatar}
+            />
           ) : (
             <View style={styles.avatarPlaceholder}>
               <Ionicons name="person" size={48} color="#88827a" />
@@ -235,7 +233,9 @@ export default function EditProfileScreen() {
             <Text
               style={[
                 styles.statusText,
-                statusType === "success" ? styles.successText : styles.errorText,
+                statusType === "success"
+                  ? styles.successText
+                  : styles.errorText,
               ]}
             >
               {statusMessage}

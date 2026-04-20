@@ -15,7 +15,8 @@ import {
 import { useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-import { API_URL } from "@/app/config";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 type LoginErrors = {
   email?: string;
@@ -26,13 +27,8 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-type LoginErrors = {
-  email?: string;
-  password?: string;
-};
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function normalizeToken(rawToken: string) {
+  return rawToken.replace(/^"+|"+$/g, "").trim();
 }
 
 export default function Login() {
@@ -88,7 +84,12 @@ export default function Login() {
         throw new Error("Invalid credentials");
       }
 
-      const token = await res.text(); // backend returns string
+      const rawToken = await res.text(); // backend returns string
+      const token = normalizeToken(rawToken);
+
+      if (!token) {
+        throw new Error("Invalid token response");
+      }
 
       // save token
       await SecureStore.setItemAsync("token", token);

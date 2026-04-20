@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import TrendingCard from "../components/TrendingCard";
-import { API_URL } from "@/app/config";
 
 const GENRES = [
   { id: "all", label: "All" },
@@ -22,6 +21,8 @@ const GENRES = [
   { id: "country", label: "Country" },
   { id: "classical", label: "Classical" },
 ];
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Discover() {
   const [trendingData, setTrendingData] = useState(null);

@@ -203,6 +203,13 @@ public class MusicService {
         return existing;
     }
 
+    public TrackResponseDTO getTrackById(Long musicId) {
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new RuntimeException("Music not found: " + musicId));
+
+        return mapToDTO(music);
+    }
+
     private boolean isDeezerUrlExpired(String url) {
         // Signed URLs look like: ...?hdnea=exp=1775080991~acl=...
         // Parse the exp value and compare to current time

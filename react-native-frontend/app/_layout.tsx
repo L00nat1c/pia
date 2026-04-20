@@ -1,38 +1,51 @@
-import { Stack, router, usePathname } from "expo-router";
-import { useEffect } from "react";
+import { Stack, router, useSegments } from "expo-router";
+import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import CustomHeader from "./components/CustomHeader";
-import { AUTHENTICATION_ENABLED } from "@/app/config";
-
 // This is the root layout file that wraps everything. Also displays header.
 
+function isValidStoredToken(token: string | null) {
+  if (!token) {
+    return false;
+  }
+
+  const normalized = token.replace(/^"+|"+$/g, "").trim();
+  if (!normalized) {
+    return false;
+  }
+
+  return normalized !== "null" && normalized !== "undefined";
+}
+
 export default function RootLayout() {
-  const pathname = usePathname();
+  const segments = useSegments();
+  const [authResolved, setAuthResolved] = useState(false);
 
   useEffect(() => {
     const guardRoute = async () => {
-      if (!AUTHENTICATION_ENABLED) {
-        return;
-      }
-
       const token = await SecureStore.getItemAsync("token");
-      const inAuthFlow = pathname === "/login" || pathname === "/register";
+      const hasValidToken = isValidStoredToken(token);
+      const inAuthFlow = segments[0] === "(auth)";
 
-      if (!token && !inAuthFlow) {
+      if (!hasValidToken && !inAuthFlow) {
         router.replace("/(auth)/login");
+        setAuthResolved(true);
         return;
       }
 
-      if (token && inAuthFlow) {
-        router.replace("/(tabs)");
-      }
+      setAuthResolved(true);
     };
 
     guardRoute();
-  }, [pathname]);
+  }, [segments]);
+
+  if (!authResolved) {
+    return null;
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen
         name="(tabs)"
         options={{
