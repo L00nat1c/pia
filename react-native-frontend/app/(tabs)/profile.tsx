@@ -997,7 +997,7 @@ export default function Profile() {
             Authorization: `Bearer ${token}`,
           },
         },
-      );
+      });
 
       if (!res.ok) {
         setUserReposts([]);
@@ -1009,6 +1009,59 @@ export default function Profile() {
     } catch (error) {
       console.error("Error fetching user reposts:", error);
       setUserReposts([]);
+    }
+  };
+
+  const fetchFollowCounts = async (userId: number) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/friends/counts/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        return;
+      }
+
+      const data = await res.json();
+      setFollowingCount(data.followingCount ?? 0);
+      setFollowersCount(data.followersCount ?? 0);
+    } catch (error) {
+      console.error("Error fetching follow counts:", error);
+    }
+  };
+
+  const fetchPlaylistFavorites = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) {
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/favorites/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setPlaylistFavorites([]);
+        return;
+      }
+
+      const data: FavoriteItem[] = await res.json();
+      setPlaylistFavorites(data);
+    } catch (error) {
+      console.error("Error fetching playlist favorites:", error);
+      setPlaylistFavorites([]);
     }
   };
 
@@ -1202,7 +1255,7 @@ export default function Profile() {
               activeTab === "favorites" && styles.activeTabText,
             ]}
           >
-            Favorites
+            Placeholder
           </Text>
         </TouchableOpacity>
       </View>

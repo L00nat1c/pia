@@ -1,7 +1,10 @@
 package com.server.pia.controller;
 
+import com.server.pia.entity.Friends;
 import com.server.pia.entity.Reviews;
 import com.server.pia.dto.ReviewsRequest;
+import com.server.pia.entity.User;
+import com.server.pia.repository.FriendsRepository;
 import com.server.pia.service.ReviewsService;
 import com.server.pia.service.FriendsService;
 import com.server.pia.service.LikesService;

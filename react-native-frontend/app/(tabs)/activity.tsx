@@ -357,6 +357,8 @@ import { useEffect, useState, useRef } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { API_URL } from "@/app/config";
+import { formatActivityTimeLabel } from "@/app/utils/activityTime";
 import ReviewCard from "../components/ReviewCard";
 import FriendsDrawer from "../components/FriendsDrawer";
 import FriendDetailsModal from "../components/FriendDetailsModal";
@@ -806,6 +808,7 @@ export default function Activity() {
           albumImage={selectedFriend.albumImage}
           songTimestamp={selectedFriend.songTimestamp}
           isListeningNow={selectedFriend.isListeningNow}
+          reviewDate={selectedFriend.reviewDate}
           onPressProfile={handlePressProfile}
         />
       )}

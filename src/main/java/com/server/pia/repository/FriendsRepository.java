@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public interface FriendsRepository extends JpaRepository<Friends, Long> {
+import java.util.List;
 
     @Query("SELECT f FROM Friends f WHERE f.user.userId = :userId")
     List<Friends> findByUserUserId(@Param("userId") Long userId);

@@ -21,6 +21,7 @@ type UserData = {
   username: string;
   email: string;
   birthDate: string;
+  lastfmUsername?: string;
 };
 
 export default function Settings() {
@@ -31,6 +32,10 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+  const [lastFmUsernameInput, setLastFmUsernameInput] = useState("");
+  const [savingLastFm, setSavingLastFm] = useState(false);
+  const [lastFmStatusMessage, setLastFmStatusMessage] = useState("");
+  const [lastFmStatusType, setLastFmStatusType] = useState<"success" | "error" | "">("");
 
   useEffect(() => {
     fetchUserData();
@@ -70,6 +75,7 @@ export default function Settings() {
 
       const data = await res.json();
       setUserData(data);
+      setLastFmUsernameInput(data.lastfmUsername ?? "");
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
@@ -166,6 +172,63 @@ export default function Settings() {
       ],
       { cancelable: true },
     );
+  };
+
+  const handleSaveLastFm = async () => {
+    try {
+      setSavingLastFm(true);
+      setLastFmStatusMessage("");
+      setLastFmStatusType("");
+
+      if (!AUTHENTICATION_ENABLED) {
+        setUserData((prev) =>
+          prev
+            ? {
+                ...prev,
+                lastfmUsername: lastFmUsernameInput.trim() || undefined,
+              }
+            : prev,
+        );
+        setLastFmStatusMessage("Last.fm username updated.");
+        setLastFmStatusType("success");
+        return;
+      }
+
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        router.replace("/(auth)/login");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/users/me/lastfm`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          lastfmUsername: lastFmUsernameInput.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        setLastFmStatusMessage("Could not save Last.fm username.");
+        setLastFmStatusType("error");
+        return;
+      }
+
+      const updatedUser = await res.json();
+      setUserData(updatedUser);
+      setLastFmUsernameInput(updatedUser.lastfmUsername ?? "");
+      setLastFmStatusMessage("Last.fm username updated.");
+      setLastFmStatusType("success");
+    } catch (error) {
+      console.error("Error saving Last.fm username:", error);
+      setLastFmStatusMessage("Could not save Last.fm username.");
+      setLastFmStatusType("error");
+    } finally {
+      setSavingLastFm(false);
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -268,6 +331,45 @@ export default function Settings() {
         {/* Preferences Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
+
+          <View style={styles.integrationCard}>
+            <View style={styles.integrationHeader}>
+              <Ionicons name="radio-outline" size={20} color="#e5e3e1" />
+              <Text style={styles.actionButtonText}>Last.fm Username</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={lastFmUsernameInput}
+              onChangeText={setLastFmUsernameInput}
+              placeholder="Enter your Last.fm username"
+              placeholderTextColor="#88827a"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              style={[styles.saveButton, savingLastFm && styles.changePasswordButtonDisabled]}
+              onPress={handleSaveLastFm}
+              disabled={savingLastFm}
+            >
+              {savingLastFm ? (
+                <ActivityIndicator color="#e5e3e1" />
+              ) : (
+                <Text style={styles.saveButtonText}>Save Last.fm</Text>
+              )}
+            </TouchableOpacity>
+            {lastFmStatusMessage ? (
+              <Text
+                style={[
+                  styles.lastFmStatusText,
+                  lastFmStatusType === "success"
+                    ? styles.lastFmSuccessText
+                    : styles.lastFmErrorText,
+                ]}
+              >
+                {lastFmStatusMessage}
+              </Text>
+            ) : null}
+          </View>
 
           <TouchableOpacity
             style={styles.actionButton}
@@ -499,6 +601,39 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 16,
     color: "#e5e3e1",
+  },
+  integrationCard: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  integrationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
+  },
+  saveButton: {
+    backgroundColor: "#716a5d",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  saveButtonText: {
+    color: "#e5e3e1",
+    fontWeight: "600",
+  },
+  lastFmStatusText: {
+    marginTop: 10,
+    fontSize: 13,
+  },
+  lastFmSuccessText: {
+    color: "#4ade80",
+  },
+  lastFmErrorText: {
+    color: "#f87171",
   },
   logoutButton: {
     backgroundColor: "rgba(194, 65, 12, 0.1)",

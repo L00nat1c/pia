@@ -1,33 +1,57 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function CustomHeader() {
+  const pathname = usePathname();
+  const isAuthScreen = pathname === "/login" || pathname === "/register";
+  const showProfileButton = !isAuthScreen;
+  const showBackButton = pathname.startsWith("/user/");
+
   const handleProfilePress = () => {
     router.push("/(tabs)/profile");
+  };
+
+  const handleBackPress = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/(tabs)/profile");
   };
 
   return (
     <View style={styles.headerContainer}>
       <View style={styles.container}>
-        {/* Mini vinyl disk logo */}
-        <View style={styles.vinylLogo}>
-          <View style={styles.vinylOuter}>
-            <View style={styles.vinylLabel}>
-              <View style={styles.vinylHole} />
+        {showBackButton ? (
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+            <Ionicons name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.vinylLogo}>
+            <View style={styles.vinylOuter}>
+              <View style={styles.vinylLabel}>
+                <View style={styles.vinylHole} />
+              </View>
             </View>
           </View>
-        </View>
+        )}
         <Text style={styles.title}>Play It Again</Text>
       </View>
-      <TouchableOpacity
-        style={styles.profileButton}
-        onPress={handleProfilePress}
-      >
-        <Image
-          source={require("../../assets/images/profile-icon-9.png")}
-          style={{ width: 25, height: 25, borderRadius: 12.5 }}
-        />
-      </TouchableOpacity>
+      {showProfileButton ? (
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={handleProfilePress}
+        >
+          <Image
+            source={require("../../assets/images/profile-icon-9.png")}
+            style={{ width: 25, height: 25, borderRadius: 12.5 }}
+          />
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.profileButtonSpacer} />
+      )}
     </View>
   );
 }
@@ -52,7 +76,18 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  backButton: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   profileButton: {
+    width: 25,
+    height: 25,
+  },
+  profileButtonSpacer: {
     width: 25,
     height: 25,
   },

@@ -13,6 +13,13 @@ public class Friends {
 
     private LocalDate created_at;
 
+    @PrePersist
+    protected void onCreate() {
+        if (created_at == null) {
+            created_at = LocalDate.now();
+        }
+    }
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

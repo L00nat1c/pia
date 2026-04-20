@@ -17,6 +17,10 @@ public interface ReviewsRepository extends JpaRepository<Reviews, Long> {
 
     List<Reviews> findByUser(User user);
 
+    List<Reviews> findByUserInOrderByReviewDateDescReviewIdDesc(List<User> users);
+
+    Reviews findTopByUserOrderByReviewDateDescReviewIdDesc(User user);
+
     List<Reviews> findByMusicAndUser(Music music, User user);
 
     List<Reviews> findAllByOrderByReviewDateDesc();

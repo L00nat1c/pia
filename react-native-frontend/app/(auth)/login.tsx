@@ -15,8 +15,16 @@ import {
 import { useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { API_URL } from "@/app/config";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+type LoginErrors = {
+  email?: string;
+  password?: string;
+};
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 type LoginErrors = {
   email?: string;

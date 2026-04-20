@@ -167,8 +167,15 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
+import { API_URL } from "@/app/config";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+type RegisterErrors = {
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  birthDate?: string;
+};
 
 const FALLBACK_TAGS = [
   "Pop",

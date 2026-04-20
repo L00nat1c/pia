@@ -43,7 +43,7 @@ public class MusicService {
         return spotifyService.getTrendingTracks();
     }
 
-    public String getTrackById(String trackId) {
+    public String getTrackBySpotifyId(String trackId) {
         return spotifyService.getTrack(trackId);
     }
 
